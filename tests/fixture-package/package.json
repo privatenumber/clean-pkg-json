@@ -1,0 +1,16 @@
+{
+	"name": "test-package",
+	"scripts": {
+		"postinstall": "echo postinstall",
+		"test": "echo test"
+	},
+	"dependencies": {
+		"lodash": "*"
+	},
+	"devDependencies": {
+		"webpack": "*"
+	},
+	"eslintConfig": {
+		"extends": "@pvtnbr"
+	}
+}
