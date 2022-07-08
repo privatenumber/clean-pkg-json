@@ -41,4 +41,4 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
 ### Default preserved properties
 By default, these properties are preserved in `package.json`:
 
-`name`, `version`, `private`, `publishConfig`, `type`, `files`, `bin`, `browser`, `main`, `module`, `types`, `exports`, `imports`, `man`, `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundledDependencies`, `optionalDependencies`, `engines`, `os`, `cpu`, `description`, `keywords`, `author`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding`
+`name`, `version`, `private`, `publishConfig`, `type`, `scripts.preinstall`, `scripts.install`, `scripts.postinstall`, `scripts.prepublish`, `scripts.preprepare`, `scripts.prepare`, `scripts.postprepare`, `files`, `bin`, `browser`, `main`, `module`, `types`, `exports`, `imports`, `man`, `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundledDependencies`, `optionalDependencies`, `engines`, `os`, `cpu`, `description`, `keywords`, `author`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding`
