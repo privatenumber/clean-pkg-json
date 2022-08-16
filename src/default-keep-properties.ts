@@ -9,13 +9,13 @@ export const defaultKeepProperties = [
 	'type',
 
 	// Install hooks
+	// npm 6 & 7
 	'scripts.preinstall',
 	'scripts.install',
 	'scripts.postinstall',
-	'scripts.prepublish',
-	'scripts.preprepare',
-	'scripts.prepare',
-	'scripts.postprepare',
+
+	// npm 8
+	'scripts.dependencies',
 
 	// Files
 	'files',
