@@ -41,4 +41,40 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
 ### Default preserved properties
 By default, these properties are preserved in `package.json`:
 
-`name`, `version`, `private`, `publishConfig`, `type`, `scripts.preinstall`, `scripts.install`, `scripts.postinstall`, `scripts.prepublish`, `scripts.preprepare`, `scripts.prepare`, `scripts.postprepare`, `files`, `bin`, `browser`, `main`, `module`, `types`, `exports`, `imports`, `man`, `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundledDependencies`, `optionalDependencies`, `engines`, `os`, `cpu`, `description`, `keywords`, `author`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding`
+`name`, `version`, `private`, `publishConfig`, `type`, `scripts.preinstall`, `scripts.install`, `scripts.postinstall`, `scripts.dependencies`, `files`, `bin`, `browser`, `main`, `module`, `types`, `exports`, `imports`, `man`, `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundledDependencies`, `optionalDependencies`, `engines`, `os`, `cpu`, `description`, `keywords`, `author`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding`
+
+- `author`
+- `bin`
+- `browser`
+- `bugs`
+- `bundledDependencies`
+- `contributors`
+- `cpu`
+- `dependencies`
+- `description`
+- `engines`
+- `exports`
+- `files`
+- `funding`
+- `homepage`
+- `imports`
+- `keywords`
+- `license`
+- `main`
+- `man`
+- `module`
+- `name`
+- `optionalDependencies`
+- `os`
+- `peerDependencies`
+- `peerDependenciesMeta`
+- `private`
+- `publishConfig`
+- `repository`
+- `scripts.dependencies`
+- `scripts.install`
+- `scripts.postinstall`
+- `scripts.preinstall`
+- `type`
+- `types`
+- `version`
