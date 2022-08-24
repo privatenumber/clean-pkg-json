@@ -3,10 +3,9 @@ export const defaultKeepProperties = [
 	'name',
 	'version',
 
-	// Read by npm
+	// Publishing
 	'private',
 	'publishConfig',
-	'type',
 
 	// Install hooks
 	// npm 6 & 7
@@ -22,10 +21,6 @@ export const defaultKeepProperties = [
 	'bin',
 	'browser',
 	'main',
-	'module',
-	'types',
-	'exports',
-	'imports',
 	'man',
 
 	// Dependencies
@@ -50,7 +45,16 @@ export const defaultKeepProperties = [
 	'repository',
 	'bugs',
 	'funding',
-	
+
+	// Node.js
+	'type',
+	'exports',
+	'imports',
+
+	// TypeScript
+	'types',
+
 	// bundler spec
-	'sideEffects',
+	'module', // https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for
+	'sideEffects', // https://webpack.js.org/configuration/optimization/#optimizationsideeffects
 ];

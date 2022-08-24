@@ -41,11 +41,11 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
 ### Default preserved properties
 By default, these properties are preserved in `package.json`:
 
+#### npm
 - `name`
 - `version`
 - `private`
 - `publishConfig`
-- `type`
 - `scripts.preinstall`
 - `scripts.install`
 - `scripts.postinstall`
@@ -54,10 +54,6 @@ By default, these properties are preserved in `package.json`:
 - `bin`
 - `browser`
 - `main`
-- `module`
-- `types`
-- `exports`
-- `imports`
 - `man`
 - `dependencies`
 - `peerDependencies`
@@ -76,4 +72,15 @@ By default, these properties are preserved in `package.json`:
 - `repository`
 - `bugs`
 - `funding`
+
+#### Node.js
+- `type`
+- `exports`
+- `imports`
+
+#### TypeScript
+- `types`
+
+#### Bundlers (Webpack, Rollup, esbuild)
+- `module`
 - `sideEffects`
