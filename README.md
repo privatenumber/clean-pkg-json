@@ -76,3 +76,4 @@ By default, these properties are preserved in `package.json`:
 - `repository`
 - `bugs`
 - `funding`
+- `sideEffects`

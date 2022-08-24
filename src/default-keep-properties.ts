@@ -50,4 +50,7 @@ export const defaultKeepProperties = [
 	'repository',
 	'bugs',
 	'funding',
+	
+	// bundler spec
+	'sideEffects',
 ];
