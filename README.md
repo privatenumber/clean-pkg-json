@@ -71,15 +71,28 @@ By default, these properties are preserved in `package.json`:
 - `homepage`
 - `repository`
 - `bugs`
+- `donate`
 - `funding`
+- `sponsor`
+
+#### CDN
+- `jsdelivr`
+- `unpkg`
 
 #### Node.js
 - `type`
 - `exports`
 - `imports`
 
+#### APF
+- `fesm2020`
+- `fesm2015`
+- `esm2020`
+- `es2020`
+
 #### TypeScript
 - `types`
+- `typings`
 
 #### Bundlers (Webpack, Rollup, esbuild)
 - `module`
