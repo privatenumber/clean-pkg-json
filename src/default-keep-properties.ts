@@ -22,6 +22,10 @@ export const defaultKeepProperties = [
 	'browser',
 	'main',
 	'man',
+	
+	// CDN
+	'jsdelivr',
+	'unpkg',
 
 	// Dependencies
 	'dependencies',
@@ -50,6 +54,12 @@ export const defaultKeepProperties = [
 	'type',
 	'exports',
 	'imports',
+	
+	// APF - https://angular.io/guide/angular-package-format#legacy-resolution-keys
+	'fesm2020',
+	'fesm2015',
+	'esm2020',
+	'es2020',
 
 	// TypeScript
 	'types',
