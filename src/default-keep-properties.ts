@@ -48,7 +48,9 @@ export const defaultKeepProperties = [
 	'homepage',
 	'repository',
 	'bugs',
+	'donate', // https://github.com/ThanksApp/donate-spec
 	'funding',
+	'sponsor', // https://code.visualstudio.com/api/references/extension-manifest
 
 	// Node.js
 	'type',
