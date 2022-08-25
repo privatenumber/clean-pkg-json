@@ -41,7 +41,7 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
 ### Default preserved properties
 By default, these properties are preserved in `package.json`:
 
-#### npm
+#### [npm](https://docs.npmjs.com/cli/v8/configuring-npm/package-json)
 - `name`
 - `version`
 - `private`
@@ -73,16 +73,16 @@ By default, these properties are preserved in `package.json`:
 - `bugs`
 - `funding`
 
-#### CDN
-- `jsdelivr`
-- `unpkg`
+#### CDNs
+- [`jsdelivr`](https://www.jsdelivr.com/features#publishing-packages)
+- [`unpkg`](https://unpkg.com/)
 
-#### Node.js
+#### [Node.js](https://nodejs.org/api/packages.html#nodejs-packagejson-field-definitions)
 - `type`
 - `exports`
 - `imports`
 
-#### VSCode
+#### [VSCode Extension Manifest](https://code.visualstudio.com/api/references/extension-manifest)
 - `sponsor`
 - `publisher`
 - `displayName`
@@ -100,16 +100,16 @@ By default, these properties are preserved in `package.json`:
 - `extensionKind`
 - `icon`
 
-#### Angular Package Format
+#### [Angular Package Format](https://angular.io/guide/angular-package-format#legacy-resolution-keys)
 - `fesm2020`
 - `fesm2015`
 - `esm2020`
 - `es2020`
 
-#### TypeScript
+#### [TypeScript](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html)
 - `types`
 - `typings`
 
 #### Bundlers (Webpack, Rollup, esbuild)
-- `module`
-- `sideEffects`
+- [`module`](https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for)
+- [`sideEffects`](https://webpack.js.org/guides/tree-shaking/)
