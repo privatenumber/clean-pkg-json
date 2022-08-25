@@ -57,7 +57,7 @@ export const defaultKeepProperties = [
 	'exports',
 	'imports',
 	
-	// APF - https://angular.io/guide/angular-package-format#legacy-resolution-keys
+	// Angular - https://angular.io/guide/angular-package-format#legacy-resolution-keys
 	'fesm2020',
 	'fesm2015',
 	'esm2020',
