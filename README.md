@@ -73,13 +73,42 @@ By default, these properties are preserved in `package.json`:
 - `bugs`
 - `funding`
 
+#### CDN
+- `jsdelivr`
+- `unpkg`
+
 #### Node.js
 - `type`
 - `exports`
 - `imports`
 
+#### VSCode
+- `sponsor`
+- `publisher`
+- `displayName`
+- `categories`
+- `galleryBanner`
+- `preview`
+- `contributes`
+- `activationEvents`
+- `badges`
+- `markdown`
+- `qna`
+- `sponsor`
+- `extensionPack`
+- `extensionDependencies`
+- `extensionKind`
+- `icon`
+
+#### Angular Package Format
+- `fesm2020`
+- `fesm2015`
+- `esm2020`
+- `es2020`
+
 #### TypeScript
 - `types`
+- `typings`
 
 #### Bundlers (Webpack, Rollup, esbuild)
 - `module`
