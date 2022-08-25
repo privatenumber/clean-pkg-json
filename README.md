@@ -71,9 +71,7 @@ By default, these properties are preserved in `package.json`:
 - `homepage`
 - `repository`
 - `bugs`
-- `donate`
 - `funding`
-- `sponsor`
 
 #### CDN
 - `jsdelivr`
@@ -83,6 +81,24 @@ By default, these properties are preserved in `package.json`:
 - `type`
 - `exports`
 - `imports`
+
+#### VSCode
+- `sponsor`
+- `publisher`
+- `displayName`
+- `categories`
+- `galleryBanner`
+- `preview`
+- `contributes`
+- `activationEvents`
+- `badges`
+- `markdown`
+- `qna`
+- `sponsor`
+- `extensionPack`
+- `extensionDependencies`
+- `extensionKind`
+- `icon`
 
 #### Angular Package Format
 - `fesm2020`

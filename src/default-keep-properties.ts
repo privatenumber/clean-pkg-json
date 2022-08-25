@@ -22,7 +22,7 @@ export const defaultKeepProperties = [
 	'browser',
 	'main',
 	'man',
-	
+
 	// CDN
 	'jsdelivr',
 	'unpkg',
@@ -48,15 +48,31 @@ export const defaultKeepProperties = [
 	'homepage',
 	'repository',
 	'bugs',
-	'donate', // https://github.com/ThanksApp/donate-spec
 	'funding',
-	'sponsor', // https://code.visualstudio.com/api/references/extension-manifest
 
 	// Node.js
 	'type',
 	'exports',
 	'imports',
-	
+
+	// VSCode - https://code.visualstudio.com/api/references/extension-manifest
+	'sponsor',
+	'publisher',
+	'displayName',
+	'categories',
+	'galleryBanner',
+	'preview',
+	'contributes',
+	'activationEvents',
+	'badges',
+	'markdown',
+	'qna',
+	'sponsor',
+	'extensionPack',
+	'extensionDependencies',
+	'extensionKind',
+	'icon',
+
 	// Angular - https://angular.io/guide/angular-package-format#legacy-resolution-keys
 	'fesm2020',
 	'fesm2015',
@@ -65,6 +81,7 @@ export const defaultKeepProperties = [
 
 	// TypeScript
 	'types',
+	'typings',
 
 	// bundler spec
 	'module', // https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for
