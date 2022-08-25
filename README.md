@@ -109,6 +109,7 @@ By default, these properties are preserved in `package.json`:
 #### [TypeScript](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html)
 - `types`
 - `typings`
+- `typesVersions`
 
 #### Bundlers (Webpack, Rollup, esbuild)
 - [`module`](https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for)

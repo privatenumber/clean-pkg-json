@@ -82,6 +82,7 @@ export const defaultKeepProperties = [
 	// TypeScript
 	'types',
 	'typings',
+	'typesVersions',
 
 	// bundler spec
 	'module', // https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for
