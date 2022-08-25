@@ -84,7 +84,7 @@ By default, these properties are preserved in `package.json`:
 - `exports`
 - `imports`
 
-#### APF
+#### Angular Package Format
 - `fesm2020`
 - `fesm2015`
 - `esm2020`
