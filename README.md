@@ -12,6 +12,11 @@ However, it can often get bloated with development concerns such as `devDependen
 
 Use `clean-pkg-json` in a prepublish hook to remove unnecessary properties from `package.json`. Useful in micropackages where every byte matters.
 
+## Install
+```
+npm install --save-dev clean-pkg-json
+```
+
 ## Usage
 
 Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using-npm/scripts#:~:text=on%20npm%20publish.-,prepack,-Runs%20BEFORE%20a), which runs before `npm publish` and `npm pack`.
