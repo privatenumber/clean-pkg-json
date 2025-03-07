@@ -43,6 +43,7 @@ export const defaultKeepProperties = [
 	'description',
 	'keywords',
 	'author',
+	'maintainers',
 	'contributors',
 	'license',
 	'homepage',
