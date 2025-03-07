@@ -71,6 +71,7 @@ By default, these properties are preserved in `package.json`:
 - `description`
 - `keywords`
 - `author`
+- `maintainers`
 - `contributors`
 - `license`
 - `homepage`
