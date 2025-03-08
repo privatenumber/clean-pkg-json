@@ -3,8 +3,8 @@
 		"module": "Preserve",
 		"resolveJsonModule": true,
 		"strict": true,
+		"noEmit": true,
 		"esModuleInterop": true,
 		"verbatimModuleSyntax": true,
-		"noEmit": true,
 	},
 }
