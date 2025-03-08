@@ -1,16 +1,10 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
-		"lib": [
-			"ESNext",
-		],
-		"moduleResolution": "node",
+		"module": "Preserve",
 		"resolveJsonModule": true,
 		"strict": true,
 		"esModuleInterop": true,
-		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"noEmit": true,
 	},
-	"include": [
-		"src",
-	],
 }
