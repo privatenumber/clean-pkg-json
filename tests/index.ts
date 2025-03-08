@@ -1,12 +1,12 @@
 import path from 'path';
 import { describe, expect } from 'manten';
-import { execaNode } from 'execa';
+import spawn from 'nano-spawn';
 
 const cleanPkgJsonPath = path.resolve('./dist/index.js');
 
 describe('clean-pkg-roll', ({ test }) => {
 	test('removes unnecessary properties', async () => {
-		const { stdout } = await execaNode(
+		const { stdout } = await spawn(
 			cleanPkgJsonPath,
 			['--dry'],
 			{
@@ -26,7 +26,7 @@ describe('clean-pkg-roll', ({ test }) => {
 	});
 
 	test('keep flag', async () => {
-		const { stdout } = await execaNode(
+		const { stdout } = await spawn(
 			cleanPkgJsonPath,
 			['--dry', '-k', 'eslintConfig,devDependencies'],
 			{
