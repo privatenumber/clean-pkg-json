@@ -1,12 +1,16 @@
 {
 	"compilerOptions": {
-		"isolatedModules": true,
-		"esModuleInterop": true,
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+		],
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"strict": true,
-		"lib": ["ESNext"],
-		"target": "ESNext",
+		"esModuleInterop": true,
+		"isolatedModules": true,
 	},
-	"include": ["src"]
+	"include": [
+		"src",
+	],
 }

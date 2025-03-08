@@ -29,8 +29,8 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
     // ...
     "scripts": {
         // ...
-        "prepack": "clean-pkg-json"
-    }
+        "prepack": "clean-pkg-json",
+    },
 }
 ```
 
