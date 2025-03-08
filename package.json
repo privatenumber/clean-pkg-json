@@ -41,5 +41,6 @@
 	},
 	"eslintConfig": {
 		"extends": "@pvtnbr"
-	}
+	},
+	"packageManager": "pnpm@9.15.4"
 }
