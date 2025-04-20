@@ -88,4 +88,7 @@ export const defaultKeepProperties = [
 	// bundler spec
 	'module', // https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for
 	'sideEffects', // https://webpack.js.org/configuration/optimization/#optimizationsideeffects
+
+	// misc
+	'napi', // https://napi.rs/docs/cli/napi-config.en
 ];
