@@ -38,6 +38,7 @@ Add `clean-pkg-json` to the [`prepack` hook](https://docs.npmjs.com/cli/v8/using
 | Flag | Description |
 | - | - |
 | `-k, --keep <property name>` | Property names to keep. Accepts multiple flags or a comma-delimited list. |
+| `-r, --remove <property name>` | Property names to remove. Accepts multiple flags or a comma-delimited list. |
 | `-v, --verbose` | Verbose logs. |
 | `-d, --dry` | Dry run mode. Instead of writing to disk, it will log it. |
 | `-h, --help` | Show help |
@@ -80,7 +81,7 @@ By default, these properties are preserved in `package.json`:
 - `funding`
 
 #### CDNs
-- [`jsdelivr`](https://www.jsdelivr.com/features#publishing-packages)
+- [`jsdelivr`](https://www.jsdelivr.com/documentation#id-configuring-a-default-file-in-packagejson)
 - [`unpkg`](https://unpkg.com/)
 
 #### [Node.js](https://nodejs.org/api/packages.html#nodejs-packagejson-field-definitions)
@@ -106,7 +107,8 @@ By default, these properties are preserved in `package.json`:
 - `extensionKind`
 - `icon`
 
-#### [Angular Package Format](https://angular.io/guide/angular-package-format#legacy-resolution-keys)
+#### [Angular Package Format](https://angular.dev/tools/libraries/angular-package-format)
+- `fesm2022`
 - `fesm2020`
 - `fesm2015`
 - `esm2020`

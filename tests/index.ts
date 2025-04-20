@@ -50,4 +50,21 @@ describe('clean-pkg-roll', ({ test }) => {
 			},
 		});
 	});
+
+	test('remove flag', async () => {
+		const { stdout } = await spawn(
+			cleanPkgJsonPath,
+			['--dry', '-r', 'scripts.postinstall'],
+			{
+				cwd: './tests/fixture-package',
+			},
+		);
+
+		expect(JSON.parse(stdout)).toStrictEqual({
+			name: 'test-package',
+			dependencies: {
+				lodash: '*',
+			},
+		});
+	});
 });

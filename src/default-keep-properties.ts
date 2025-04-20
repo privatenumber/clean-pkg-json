@@ -74,7 +74,8 @@ export const defaultKeepProperties = [
 	'extensionKind',
 	'icon',
 
-	// Angular - https://angular.io/guide/angular-package-format#legacy-resolution-keys
+	// Angular - https://angular.dev/tools/libraries/angular-package-format
+	'fesm2022',
 	'fesm2020',
 	'fesm2015',
 	'esm2020',

@@ -19,6 +19,11 @@ const argv = cli({
 			alias: 'k',
 			description: 'package.json properties to keep',
 		},
+		remove: {
+			type: [String],
+			alias: 'r',
+			description: 'package.json properties to remove',
+		},
 		dry: {
 			type: Boolean,
 			alias: 'd',
@@ -53,6 +58,10 @@ const log = (...args: any[]) => {
 		...defaultKeepProperties,
 		...argv.flags.keep.flatMap(keepProperty => keepProperty.split(',')),
 	]);
+
+	for (const item of argv.flags.remove) {
+		keepProperties.delete(item);
+	}
 
 	log('Keeing properties', Array.from(keepProperties));
 
