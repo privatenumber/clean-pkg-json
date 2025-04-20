@@ -120,3 +120,7 @@ By default, these properties are preserved in `package.json`:
 #### Bundlers (Webpack, Rollup, esbuild)
 - [`module`](https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for)
 - [`sideEffects`](https://webpack.js.org/guides/tree-shaking/)
+
+#### Misc
+
+- [`napi`](https://napi.rs/docs/cli/napi-config)
