@@ -90,5 +90,5 @@ export const defaultKeepProperties = [
 	'sideEffects', // https://webpack.js.org/configuration/optimization/#optimizationsideeffects
 
 	// misc
-	'napi', // https://napi.rs/docs/cli/napi-config.en
+	'napi', // https://napi.rs/docs/cli/napi-config
 ];
