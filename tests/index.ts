@@ -1,10 +1,10 @@
 import path from 'path';
-import { describe, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import spawn from 'nano-spawn';
 
 const cleanPkgJsonPath = path.resolve('./dist/index.js');
 
-describe('clean-pkg-roll', ({ test }) => {
+describe('clean-pkg-roll', () => {
 	test('removes unnecessary properties', async () => {
 		const { stdout } = await spawn(
 			cleanPkgJsonPath,
