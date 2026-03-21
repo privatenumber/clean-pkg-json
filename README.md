@@ -177,3 +177,7 @@ Add `clean-pkg-json` to the [`prepack`](https://docs.npmjs.com/cli/v8/using-npm/
 - [`sideEffects`](https://webpack.js.org/guides/tree-shaking/)
 
 </details>
+
+## Agent Skills
+
+This package ships with [agent skills](https://agentskills.io) for AI coding assistants. Set up [`skills-npm`](https://github.com/antfu/skills-npm) to use them.

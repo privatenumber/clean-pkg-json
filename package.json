@@ -17,7 +17,8 @@
 	},
 	"files": [
 		"bin",
-		"dist"
+		"dist",
+		"skills"
 	],
 	"bin": "dist/index.js",
 	"packageManager": "pnpm@9.15.4",
