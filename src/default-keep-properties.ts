@@ -68,7 +68,6 @@ export const defaultKeepProperties = [
 	'badges',
 	'markdown',
 	'qna',
-	'sponsor',
 	'extensionPack',
 	'extensionDependencies',
 	'extensionKind',
