@@ -91,10 +91,10 @@ const log = (...args: any[]) => {
 		delete packageJson[property];
 	}
 
-	const fieldsToprune = ['imports', 'exports'].filter(field => packageJson[field]);
-	if (fieldsToprune.length > 0) {
+	const fieldsToPrune = ['imports', 'exports'].filter(field => packageJson[field]);
+	if (fieldsToPrune.length > 0) {
 		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
-		for (const field of fieldsToprune) {
+		for (const field of fieldsToPrune) {
 			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
 			if (pruned === null) {
 				log(`Removing property "${field}" (all paths unpublished)`);
