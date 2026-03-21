@@ -34,7 +34,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^22.19.15",
-		"cleye": "^1.2.1",
+		"cleye": "^2.3.0",
 		"lintroll": "^1.30.0",
 		"manten": "^2.0.0",
 		"nano-spawn": "^0.2.0",
