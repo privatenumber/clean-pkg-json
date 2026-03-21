@@ -376,7 +376,7 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
-	test('--no-prune disables path pruning', async () => {
+	test('--prune=false disables path pruning', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
 			'package.json': JSON.stringify({
@@ -389,7 +389,7 @@ describe('prune unpublished paths', () => {
 			}),
 		});
 
-		await cleanPkgJson(fixture.path, ['--no-prune']);
+		await cleanPkgJson(fixture.path, ['--prune=false']);
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.imports).toStrictEqual({

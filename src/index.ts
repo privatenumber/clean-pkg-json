@@ -11,7 +11,6 @@ const packageJsonPath = './package.json';
 const argv = cli({
 	name,
 	version,
-	booleanFlagNegation: true,
 	flags: {
 		verbose: {
 			type: Boolean,
