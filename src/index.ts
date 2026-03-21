@@ -2,6 +2,7 @@ import { promises as fs } from 'node:fs';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
+import { getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
 
 const { name, version, description } = pkg;
 
@@ -88,6 +89,20 @@ const log = (...args: any[]) => {
 
 		log(`Removing property "${property}"`);
 		delete packageJson[property];
+	}
+
+	const fieldsToprune = ['imports', 'exports'].filter(field => packageJson[field]);
+	if (fieldsToprune.length > 0) {
+		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
+		for (const field of fieldsToprune) {
+			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
+			if (pruned === null) {
+				log(`Removing property "${field}" (all paths unpublished)`);
+				delete packageJson[field];
+			} else {
+				packageJson[field] = pruned;
+			}
+		}
 	}
 
 	const newPackageJsonString = JSON.stringify(packageJson, null, 2);
