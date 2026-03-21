@@ -2,7 +2,7 @@ import path from 'path';
 import { describe, test, expect } from 'manten';
 import spawn from 'nano-spawn';
 
-const cleanPkgJsonPath = path.resolve('./dist/index.js');
+const cleanPkgJsonPath = path.resolve('./dist/index.mjs');
 
 describe('clean-pkg-roll', () => {
 	test('removes unnecessary properties', async () => {
