@@ -1,7 +1,9 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { cli } from 'cleye';
-import { name, version, description } from '../package.json';
-import { defaultKeepProperties } from './default-keep-properties';
+import pkg from '../package.json' with { type: 'json' };
+import { defaultKeepProperties } from './default-keep-properties.ts';
+
+const { name, version, description } = pkg;
 
 const packageJsonPath = './package.json';
 

@@ -1,20 +1,48 @@
 import path from 'path';
 import { describe, test, expect } from 'manten';
 import spawn from 'nano-spawn';
+import { createFixture } from 'fs-fixture';
 
-const cleanPkgJsonPath = path.resolve('./dist/index.mjs');
+const cleanPkgJsonPath = path.resolve('./src/index.ts');
 
-describe('clean-pkg-roll', () => {
+const cleanPkgJson = (
+	cwd: string,
+	flags: string[] = [],
+) => spawn(
+	process.execPath,
+	[cleanPkgJsonPath, ...flags],
+	{ cwd },
+);
+
+const fixturePackageJson = {
+	name: 'test-package',
+	version: '1.0.0',
+	description: 'Test fixture',
+	license: 'MIT',
+	scripts: {
+		postinstall: 'echo postinstall',
+		test: 'echo test',
+	},
+	dependencies: {
+		lodash: '*',
+	},
+	devDependencies: {
+		webpack: '*',
+	},
+	eslintConfig: {
+		extends: '@pvtnbr',
+	},
+};
+
+describe('clean-pkg-json', () => {
 	test('removes unnecessary properties', async () => {
-		const { stdout } = await spawn(
-			cleanPkgJsonPath,
-			['--dry'],
-			{
-				cwd: './tests/fixture-package',
-			},
-		);
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify(fixturePackageJson),
+		});
 
-		expect(JSON.parse(stdout)).toStrictEqual({
+		await cleanPkgJson(fixture.path);
+
+		expect(await fixture.readJson('package.json')).toStrictEqual({
 			name: 'test-package',
 			version: '1.0.0',
 			description: 'Test fixture',
@@ -29,15 +57,13 @@ describe('clean-pkg-roll', () => {
 	});
 
 	test('keep flag', async () => {
-		const { stdout } = await spawn(
-			cleanPkgJsonPath,
-			['--dry', '-k', 'eslintConfig,devDependencies'],
-			{
-				cwd: './tests/fixture-package',
-			},
-		);
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify(fixturePackageJson),
+		});
 
-		expect(JSON.parse(stdout)).toStrictEqual({
+		await cleanPkgJson(fixture.path, ['-k', 'eslintConfig,devDependencies']);
+
+		expect(await fixture.readJson('package.json')).toStrictEqual({
 			name: 'test-package',
 			version: '1.0.0',
 			description: 'Test fixture',
@@ -58,15 +84,13 @@ describe('clean-pkg-roll', () => {
 	});
 
 	test('remove flag', async () => {
-		const { stdout } = await spawn(
-			cleanPkgJsonPath,
-			['--dry', '-r', 'scripts.postinstall'],
-			{
-				cwd: './tests/fixture-package',
-			},
-		);
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify(fixturePackageJson),
+		});
 
-		expect(JSON.parse(stdout)).toStrictEqual({
+		await cleanPkgJson(fixture.path, ['-r', 'scripts.postinstall']);
+
+		expect(await fixture.readJson('package.json')).toStrictEqual({
 			name: 'test-package',
 			version: '1.0.0',
 			description: 'Test fixture',
