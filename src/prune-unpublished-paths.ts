@@ -1,4 +1,3 @@
-// @ts-expect-error -- npm-packlist has no type declarations
 import packlist from 'npm-packlist';
 
 const edgesOut = new Map();
