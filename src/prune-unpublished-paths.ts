@@ -10,6 +10,7 @@ export const getPublishedFiles = async (
 		path: cwd,
 		package: packageJson,
 		edgesOut,
+		isProjectRoot: true,
 	});
 	return new Set(files);
 };
