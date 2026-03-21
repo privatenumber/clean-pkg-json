@@ -32,7 +32,7 @@ const argv = cli({
 			alias: 'd',
 			description: 'Dry run',
 		},
-		prune: {
+		publishedOnly: {
 			type: Boolean,
 			description: 'Prune unpublished paths from exports/imports',
 			default: true,
@@ -96,7 +96,7 @@ const log = (...args: any[]) => {
 		delete packageJson[property];
 	}
 
-	const fieldsToPrune = argv.flags.prune
+	const fieldsToPrune = argv.flags.publishedOnly
 		? ['imports', 'exports'].filter(field => packageJson[field])
 		: [];
 	if (fieldsToPrune.length > 0) {
