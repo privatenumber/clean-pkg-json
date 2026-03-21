@@ -16,7 +16,9 @@ Given a `package.json` with dev configs, scripts, and devDependencies:
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "build": "pkgroll",
         "lint": "eslint .",
@@ -32,7 +34,9 @@ Given a `package.json` with dev configs, scripts, and devDependencies:
         "clean-pkg-json": "^1.0.0"
     },
     "eslintConfig": {
-        "extends": ["@pvtnbr"]
+        "extends": [
+            "@pvtnbr"
+        ]
     },
     "lint-staged": {
         "*.ts": "eslint --fix"
@@ -53,7 +57,9 @@ Running `clean-pkg-json` produces:
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "dependencies": {
         "lodash": "^4.0.0"
     }
@@ -80,8 +86,8 @@ Add `clean-pkg-json` to the [`prepack`](https://docs.npmjs.com/cli/v8/using-npm/
 // package.json
 {
     "scripts": {
-        "prepack": "clean-pkg-json"
-    }
+        "prepack": "clean-pkg-json",
+    },
 }
 ```
 
