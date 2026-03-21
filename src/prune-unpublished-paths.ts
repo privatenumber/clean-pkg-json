@@ -15,26 +15,17 @@ export const getPublishedFiles = async (
 	return new Set(files);
 };
 
-const isRelativePath = (value: string) => value.startsWith('./');
-
-const normalizePath = (value: string) => value.slice(2);
-
-const hasWildcard = (value: string) => value.includes('*');
-
 const wildcardMatchesAnyFile = (
 	pattern: string,
 	publishedFiles: Set<string>,
 ) => {
-	const normalized = normalizePath(pattern);
+	const normalized = pattern.slice(2);
 	const prefix = normalized.slice(0, normalized.indexOf('*'));
 	const suffix = normalized.slice(normalized.indexOf('*') + 1);
 
-	for (const file of Array.from(publishedFiles)) {
-		if (file.startsWith(prefix) && file.endsWith(suffix)) {
-			return true;
-		}
-	}
-	return false;
+	return Array.from(publishedFiles).some(
+		file => file.startsWith(prefix) && file.endsWith(suffix),
+	);
 };
 
 // Sentinel to distinguish "prune this" from "value is literally null"
@@ -49,13 +40,13 @@ const pruneValue = (
 	}
 
 	if (typeof value === 'string') {
-		if (!isRelativePath(value)) {
+		if (!value.startsWith('./')) {
 			return value;
 		}
-		if (hasWildcard(value)) {
+		if (value.includes('*')) {
 			return wildcardMatchesAnyFile(value, publishedFiles) ? value : PRUNE;
 		}
-		return publishedFiles.has(normalizePath(value)) ? value : PRUNE;
+		return publishedFiles.has(value.slice(2)) ? value : PRUNE;
 	}
 
 	if (Array.isArray(value)) {
