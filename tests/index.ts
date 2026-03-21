@@ -16,6 +16,9 @@ describe('clean-pkg-roll', () => {
 
 		expect(JSON.parse(stdout)).toStrictEqual({
 			name: 'test-package',
+			version: '1.0.0',
+			description: 'Test fixture',
+			license: 'MIT',
 			scripts: {
 				postinstall: 'echo postinstall',
 			},
@@ -36,6 +39,9 @@ describe('clean-pkg-roll', () => {
 
 		expect(JSON.parse(stdout)).toStrictEqual({
 			name: 'test-package',
+			version: '1.0.0',
+			description: 'Test fixture',
+			license: 'MIT',
 			scripts: {
 				postinstall: 'echo postinstall',
 			},
@@ -62,6 +68,9 @@ describe('clean-pkg-roll', () => {
 
 		expect(JSON.parse(stdout)).toStrictEqual({
 			name: 'test-package',
+			version: '1.0.0',
+			description: 'Test fixture',
+			license: 'MIT',
 			dependencies: {
 				lodash: '*',
 			},
