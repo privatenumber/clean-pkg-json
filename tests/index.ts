@@ -376,6 +376,27 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
+	test('--no-prune disables path pruning', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#utils': './src/utils.ts',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path, ['--no-prune']);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.imports).toStrictEqual({
+			'#utils': './src/utils.ts',
+		});
+	});
+
 	test('non-path specifiers left untouched', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',

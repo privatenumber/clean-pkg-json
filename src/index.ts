@@ -11,6 +11,7 @@ const packageJsonPath = './package.json';
 const argv = cli({
 	name,
 	version,
+	booleanFlagNegation: true,
 	flags: {
 		verbose: {
 			type: Boolean,
@@ -31,6 +32,11 @@ const argv = cli({
 			type: Boolean,
 			alias: 'd',
 			description: 'Dry run',
+		},
+		prune: {
+			type: Boolean,
+			description: 'Prune unpublished paths from exports/imports',
+			default: true,
 		},
 	},
 	help: {
@@ -91,7 +97,9 @@ const log = (...args: any[]) => {
 		delete packageJson[property];
 	}
 
-	const fieldsToPrune = ['imports', 'exports'].filter(field => packageJson[field]);
+	const fieldsToPrune = argv.flags.prune
+		? ['imports', 'exports'].filter(field => packageJson[field])
+		: [];
 	if (fieldsToPrune.length > 0) {
 		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
 		for (const field of fieldsToPrune) {
