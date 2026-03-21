@@ -104,7 +104,7 @@ const log = (...args: any[]) => {
 		for (const field of fieldsToPrune) {
 			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
 			if (pruned === undefined) {
-				log(`Removing property "${field}" (all paths unpublished)`);
+				log(`Removing property "${field}" (no published files referenced)`);
 				delete packageJson[field];
 			} else {
 				packageJson[field] = pruned;
