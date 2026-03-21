@@ -283,6 +283,99 @@ describe('prune unpublished paths', () => {
 		expect(result).not.toHaveProperty('exports');
 	});
 
+	test('null values preserved (used to block subpaths)', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./internal/*': null,
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': './dist/index.js',
+			'./internal/*': null,
+		});
+	});
+
+	test('fallback arrays — prunes unpublished entries', async () => {
+		await using fixture = await createFixture({
+			'dist/index.mjs': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': [
+						{ import: './dist/index.mjs' },
+						'./src/index.js',
+					],
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': [
+				{ import: './dist/index.mjs' },
+			],
+		});
+	});
+
+	test('wildcard patterns — preserved when matching files exist', async () => {
+		await using fixture = await createFixture({
+			'dist/utils/format.js': '',
+			'dist/utils/parse.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'./utils/*': './dist/utils/*.js',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'./utils/*': './dist/utils/*.js',
+		});
+	});
+
+	test('wildcard patterns — pruned when no matching files exist', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./utils/*': './src/utils/*.ts',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': './dist/index.js',
+		});
+	});
+
 	test('non-path specifiers left untouched', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
