@@ -63,7 +63,7 @@ const log = (...args: any[]) => {
 		keepProperties.delete(item);
 	}
 
-	log('Keeing properties', Array.from(keepProperties));
+	log('Keeping properties', Array.from(keepProperties));
 
 	for (const property in packageJson) {
 		if (keepProperties.has(property)) {
