@@ -96,7 +96,7 @@ const log = (...args: any[]) => {
 		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
 		for (const field of fieldsToPrune) {
 			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
-			if (pruned === null) {
+			if (pruned === undefined) {
 				log(`Removing property "${field}" (all paths unpublished)`);
 				delete packageJson[field];
 			} else {
