@@ -150,3 +150,273 @@ describe('clean-pkg-json', () => {
 		await expect(cleanPkgJson(fixture.path)).rejects.toThrow();
 	});
 });
+
+describe('prune unpublished paths', () => {
+	test('prunes import entry pointing to unpublished file', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#utils': './src/utils.ts',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result).not.toHaveProperty('imports');
+	});
+
+	test('preserves import entry pointing to published file', async () => {
+		await using fixture = await createFixture({
+			'dist/utils.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#utils': './dist/utils.js',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.imports).toStrictEqual({
+			'#utils': './dist/utils.js',
+		});
+	});
+
+	test('conditional import — prunes only unpublished branches', async () => {
+		await using fixture = await createFixture({
+			'dist/config.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#config': {
+						development: './src/config.dev.ts',
+						default: './dist/config.js',
+					},
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.imports).toStrictEqual({
+			'#config': {
+				default: './dist/config.js',
+			},
+		});
+	});
+
+	test('conditional import — removes entry when all branches unpublished', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#internal': {
+						development: './src/internal.dev.ts',
+						default: './src/internal.ts',
+					},
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result).not.toHaveProperty('imports');
+	});
+
+	test('exports — prunes unpublished branches', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': {
+						source: './src/index.ts',
+						default: './dist/index.js',
+					},
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': {
+				default: './dist/index.js',
+			},
+		});
+	});
+
+	test('bare string export — prunes if unpublished', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: './src/index.ts',
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result).not.toHaveProperty('exports');
+	});
+
+	test('null values preserved (used to block subpaths)', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./internal/*': null,
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': './dist/index.js',
+			'./internal/*': null,
+		});
+	});
+
+	test('fallback arrays — prunes unpublished entries', async () => {
+		await using fixture = await createFixture({
+			'dist/index.mjs': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': [
+						{ import: './dist/index.mjs' },
+						'./src/index.js',
+					],
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': [
+				{ import: './dist/index.mjs' },
+			],
+		});
+	});
+
+	test('wildcard patterns — preserved when matching files exist', async () => {
+		await using fixture = await createFixture({
+			'dist/utils/format.js': '',
+			'dist/utils/parse.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'./utils/*': './dist/utils/*.js',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'./utils/*': './dist/utils/*.js',
+		});
+	});
+
+	test('wildcard patterns — pruned when no matching files exist', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./utils/*': './src/utils/*.ts',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': './dist/index.js',
+		});
+	});
+
+	test('--published-only=false disables path pruning', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#utils': './src/utils.ts',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path, ['--published-only=false']);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.imports).toStrictEqual({
+			'#utils': './src/utils.ts',
+		});
+	});
+
+	test('non-path specifiers left untouched', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				imports: {
+					'#dep': 'lodash',
+					'#local': './dist/index.js',
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.imports).toStrictEqual({
+			'#dep': 'lodash',
+			'#local': './dist/index.js',
+		});
+	});
+});

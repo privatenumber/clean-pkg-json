@@ -72,6 +72,8 @@ Uses an allowlist to preserve only [properties relevant to package consumers](#d
 
 For `scripts`, only install hooks (`preinstall`, `install`, `postinstall`, `dependencies`) are preserved. All other scripts are removed.
 
+For `exports` and `imports`, entries referencing files not included in the published package are pruned. This prevents consumers from resolving to non-existent source files. Conditional entries are partially pruned — only unpublished branches are removed. Pass `--published-only=false` to disable this behavior.
+
 ## Install
 
 ```sh
@@ -99,6 +101,7 @@ Add `clean-pkg-json` to the [`prepack`](https://docs.npmjs.com/cli/v8/using-npm/
 | `-r, --remove <property name>` | Property names to remove. Accepts multiple flags or a comma-delimited list. |
 | `-v, --verbose` | Verbose logs. |
 | `-d, --dry` | Dry run — prints the result instead of writing to disk. |
+| `--published-only=false` | Disable pruning of unpublished paths in `exports` and `imports`. |
 | `-h, --help` | Show help |
 | `--version` | Show version |
 

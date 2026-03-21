@@ -38,6 +38,7 @@
 		"lintroll": "^1.30.0",
 		"manten": "^2.0.0",
 		"nano-spawn": "^2.0.0",
+		"npm-packlist": "^10.0.4",
 		"pkgroll": "^2.27.0",
 		"skills-npm": "^1.1.0",
 		"type-fest": "^5.5.0",
