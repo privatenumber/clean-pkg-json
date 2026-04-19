@@ -32,7 +32,7 @@
 		"prepare": "skills-npm"
 	},
 	"devDependencies": {
-		"@types/node": "^22.19.15",
+		"@types/node": "^24.12.2",
 		"cleye": "^2.3.0",
 		"fs-fixture": "^2.11.0",
 		"lintroll": "^1.30.0",
