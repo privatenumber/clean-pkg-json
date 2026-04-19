@@ -42,6 +42,6 @@
 		"pkgroll": "^2.27.0",
 		"skills-npm": "^1.1.0",
 		"type-fest": "^5.5.0",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.3"
 	}
 }
