@@ -93,6 +93,8 @@ Add `clean-pkg-json` to the [`prepack`](https://docs.npmjs.com/cli/v8/using-npm/
 }
 ```
 
+When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-json` auto-detects npm's dry-run mode (via the `npm_config_dry_run` env var) and skips writing to disk.
+
 ### Flags
 
 | Flag | Description |

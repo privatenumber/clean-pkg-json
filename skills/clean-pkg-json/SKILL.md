@@ -40,6 +40,8 @@ Both `--keep` and `--remove` accept multiple flags (`-k foo -k bar`) or comma-de
 
 Use `--dry` to preview changes before writing.
 
+`npm pack --dry-run` and `npm publish --dry-run` are also auto-detected (via `npm_config_dry_run`) — no write happens when npm itself is in dry-run mode.
+
 ## Behavior
 
 The tool reads `./package.json` in the current directory, keeps only allowlisted properties, and writes the result back in place.

@@ -50,6 +50,8 @@ const log = (...args: any[]) => {
 };
 
 (async () => {
+	const isDryRun = argv.flags.dry || process.env.npm_config_dry_run === 'true';
+
 	const packageJsonExists = await fs.access(packageJsonPath).then(
 		() => true,
 		() => false,
@@ -113,11 +115,11 @@ const log = (...args: any[]) => {
 	}
 
 	const newPackageJsonString = JSON.stringify(packageJson, null, 2);
-	if (argv.flags.dry || argv.flags.verbose) {
+	if (isDryRun || argv.flags.verbose) {
 		console.log(newPackageJsonString);
 	}
 
-	if (!argv.flags.dry) {
+	if (!isDryRun) {
 		await fs.writeFile(
 			packageJsonPath,
 			newPackageJsonString,
