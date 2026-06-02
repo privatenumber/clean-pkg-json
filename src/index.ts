@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
-import { getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
+import { getLocalFiles, getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
 
 const { name, version, description } = pkg;
 
@@ -102,9 +102,12 @@ const log = (...args: any[]) => {
 		? ['imports', 'exports'].filter(field => packageJson[field])
 		: [];
 	if (fieldsToPrune.length > 0) {
-		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
+		const [publishedFiles, localFiles] = await Promise.all([
+			getPublishedFiles(process.cwd(), packageJson),
+			getLocalFiles(process.cwd()),
+		]);
 		for (const field of fieldsToPrune) {
-			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
+			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles, localFiles);
 			if (pruned === undefined) {
 				log(`Removing property "${field}" (no published files referenced)`);
 				delete packageJson[field];

@@ -155,6 +155,7 @@ describe('prune unpublished paths', () => {
 	test('prunes import entry pointing to unpublished file', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
+			'src/utils.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -195,6 +196,7 @@ describe('prune unpublished paths', () => {
 	test('conditional import — prunes only unpublished branches', async () => {
 		await using fixture = await createFixture({
 			'dist/config.js': '',
+			'src/config.dev.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -221,6 +223,8 @@ describe('prune unpublished paths', () => {
 	test('conditional import — removes entry when all branches unpublished', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
+			'src/internal.dev.ts': '',
+			'src/internal.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -243,6 +247,7 @@ describe('prune unpublished paths', () => {
 	test('exports — prunes unpublished branches', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
+			'src/index.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -269,6 +274,7 @@ describe('prune unpublished paths', () => {
 	test('bare string export — prunes if unpublished', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
+			'src/index.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -309,6 +315,7 @@ describe('prune unpublished paths', () => {
 	test('fallback arrays — prunes unpublished entries', async () => {
 		await using fixture = await createFixture({
 			'dist/index.mjs': '',
+			'src/index.js': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -354,9 +361,10 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
-	test('wildcard patterns — pruned when no matching files exist', async () => {
+	test('wildcard patterns — pruned when matching files exist but are excluded', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
+			'src/utils/format.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -417,6 +425,64 @@ describe('prune unpublished paths', () => {
 		expect(result.imports).toStrictEqual({
 			'#dep': 'lodash',
 			'#local': './dist/index.js',
+		});
+	});
+
+	test('preserves entries whose target files do not exist yet (pre-build)', async () => {
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				exports: {
+					'.': {
+						require: './dist/index.cjs',
+						default: './dist/index.mjs',
+					},
+					'./constant': {
+						require: './constant.js',
+						default: './esm/constant.js',
+					},
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': {
+				require: './dist/index.cjs',
+				default: './dist/index.mjs',
+			},
+			'./constant': {
+				require: './constant.js',
+				default: './esm/constant.js',
+			},
+		});
+	});
+
+	test('preserves wildcard entries whose target files do not exist yet (pre-build)', async () => {
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				exports: {
+					'./locale/*': {
+						require: './locale/*.js',
+						default: './esm/locale/*.js',
+					},
+				},
+			}),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'./locale/*': {
+				require: './locale/*.js',
+				default: './esm/locale/*.js',
+			},
 		});
 	});
 });
