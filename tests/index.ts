@@ -155,7 +155,6 @@ describe('prune unpublished paths', () => {
 	test('prunes import entry pointing to unpublished file', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
-			'src/utils.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -196,7 +195,6 @@ describe('prune unpublished paths', () => {
 	test('conditional import — prunes only unpublished branches', async () => {
 		await using fixture = await createFixture({
 			'dist/config.js': '',
-			'src/config.dev.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -223,8 +221,6 @@ describe('prune unpublished paths', () => {
 	test('conditional import — removes entry when all branches unpublished', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
-			'src/internal.dev.ts': '',
-			'src/internal.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -247,7 +243,6 @@ describe('prune unpublished paths', () => {
 	test('exports — prunes unpublished branches', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
-			'src/index.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -274,7 +269,6 @@ describe('prune unpublished paths', () => {
 	test('bare string export — prunes if unpublished', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
-			'src/index.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -315,7 +309,6 @@ describe('prune unpublished paths', () => {
 	test('fallback arrays — prunes unpublished entries', async () => {
 		await using fixture = await createFixture({
 			'dist/index.mjs': '',
-			'src/index.js': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -361,10 +354,9 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
-	test('wildcard patterns — pruned when matching files exist but are excluded', async () => {
+	test('wildcard patterns — pruned when no matching files exist', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
-			'src/utils/format.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
@@ -428,61 +420,48 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
-	test('preserves entries whose target files do not exist yet (pre-build)', async () => {
+	test('warns when an entry is removed because its file does not exist', async () => {
 		await using fixture = await createFixture({
+			'dist/index.js': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
+				files: ['dist'],
 				exports: {
-					'.': {
-						require: './dist/index.cjs',
-						default: './dist/index.mjs',
-					},
-					'./constant': {
-						require: './constant.js',
-						default: './esm/constant.js',
-					},
+					'.': './dist/index.js',
+					'./sub': './not-built.js',
 				},
 			}),
 		});
 
-		await cleanPkgJson(fixture.path);
+		const { stderr } = await cleanPkgJson(fixture.path);
 
 		const result = await fixture.readJson<PackageJson>('package.json');
-		expect(result.exports).toStrictEqual({
-			'.': {
-				require: './dist/index.cjs',
-				default: './dist/index.mjs',
-			},
-			'./constant': {
-				require: './constant.js',
-				default: './esm/constant.js',
-			},
-		});
+		expect(result.exports).toStrictEqual({ '.': './dist/index.js' });
+		expect(stderr).toContain('./not-built.js');
 	});
 
-	test('preserves wildcard entries whose target files do not exist yet (pre-build)', async () => {
+	test('does not warn when removing an excluded file that exists on disk', async () => {
 		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'src/index.ts': '',
 			'package.json': JSON.stringify({
 				name: 'test-package',
 				version: '1.0.0',
+				files: ['dist'],
 				exports: {
-					'./locale/*': {
-						require: './locale/*.js',
-						default: './esm/locale/*.js',
+					'.': {
+						source: './src/index.ts',
+						default: './dist/index.js',
 					},
 				},
 			}),
 		});
 
-		await cleanPkgJson(fixture.path);
+		const { stderr } = await cleanPkgJson(fixture.path);
 
 		const result = await fixture.readJson<PackageJson>('package.json');
-		expect(result.exports).toStrictEqual({
-			'./locale/*': {
-				require: './locale/*.js',
-				default: './esm/locale/*.js',
-			},
-		});
+		expect(result.exports).toStrictEqual({ '.': { default: './dist/index.js' } });
+		expect(stderr).not.toContain("don't exist");
 	});
 });

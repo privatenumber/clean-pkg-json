@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
-import { getLocalFiles, getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
+import { getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
 
 const { name, version, description } = pkg;
 
@@ -46,6 +46,41 @@ const argv = cli({
 const log = (...args: any[]) => {
 	if (argv.flags.verbose) {
 		console.log(...args);
+	}
+};
+
+const pruneUnpublishedFields = async (
+	packageJson: Record<string, unknown>,
+	fields: string[],
+) => {
+	const cwd = process.cwd();
+	const publishedFiles = await getPublishedFiles(cwd, packageJson);
+	const missingFiles = new Set<string>();
+
+	for (const field of fields) {
+		const { result, removedMissingFiles } = pruneUnpublishedPaths(
+			packageJson[field],
+			publishedFiles,
+			cwd,
+		);
+		for (const file of removedMissingFiles) {
+			missingFiles.add(file);
+		}
+
+		if (result === undefined) {
+			log(`Removing property "${field}" (no published files referenced)`);
+			delete packageJson[field];
+		} else {
+			packageJson[field] = result;
+		}
+	}
+
+	if (missingFiles.size > 0) {
+		console.warn(
+			'clean-pkg-json: removed exports/imports entries pointing to files that '
+			+ `don't exist: ${Array.from(missingFiles).join(', ')}\n`
+			+ 'If these are build outputs, run clean-pkg-json after building.',
+		);
 	}
 };
 
@@ -102,19 +137,7 @@ const log = (...args: any[]) => {
 		? ['imports', 'exports'].filter(field => packageJson[field])
 		: [];
 	if (fieldsToPrune.length > 0) {
-		const [publishedFiles, localFiles] = await Promise.all([
-			getPublishedFiles(process.cwd(), packageJson),
-			getLocalFiles(process.cwd()),
-		]);
-		for (const field of fieldsToPrune) {
-			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles, localFiles);
-			if (pruned === undefined) {
-				log(`Removing property "${field}" (no published files referenced)`);
-				delete packageJson[field];
-			} else {
-				packageJson[field] = pruned;
-			}
-		}
+		await pruneUnpublishedFields(packageJson, fieldsToPrune);
 	}
 
 	const newPackageJsonString = JSON.stringify(packageJson, null, 2);

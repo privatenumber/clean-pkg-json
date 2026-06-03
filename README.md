@@ -72,7 +72,9 @@ Uses an allowlist to preserve only [properties relevant to package consumers](#d
 
 For `scripts`, only install hooks (`preinstall`, `install`, `postinstall`, `dependencies`) are preserved. All other scripts are removed.
 
-For `exports` and `imports`, entries pointing to files that exist locally but are excluded from the published package (e.g. source files referenced by dev-only conditions) are pruned. This prevents consumers from resolving to unpublished source files. Entries whose target files don't exist on disk (e.g. build artifacts that haven't been generated yet) are left untouched. Conditional entries are partially pruned — only the excluded branches are removed. Pass `--published-only=false` to disable this behavior.
+For `exports` and `imports`, entries referencing files not included in the published package are pruned. This prevents consumers from resolving to non-existent source files. Conditional entries are partially pruned — only unpublished branches are removed. Pass `--published-only=false` to disable this behavior.
+
+If an entry is removed because its target file doesn't exist on disk, a warning is printed. This usually means `clean-pkg-json` ran before the build.
 
 ## Install
 
