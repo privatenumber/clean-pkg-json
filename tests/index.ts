@@ -354,7 +354,7 @@ describe('prune unpublished paths', () => {
 		});
 	});
 
-	test('wildcard patterns — pruned when no matching files exist', async () => {
+	test('wildcard patterns — pruned and warns when no matching files exist', async () => {
 		await using fixture = await createFixture({
 			'dist/index.js': '',
 			'package.json': JSON.stringify({
@@ -368,12 +368,37 @@ describe('prune unpublished paths', () => {
 			}),
 		});
 
-		await cleanPkgJson(fixture.path);
+		const { stderr } = await cleanPkgJson(fixture.path);
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({
 			'.': './dist/index.js',
 		});
+		expect(stderr).toContain('./src/utils/*.ts');
+	});
+
+	test('wildcard patterns — pruned silently when matching files exist but are excluded', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'src/utils/format.ts': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./utils/*': './src/utils/*.ts',
+				},
+			}),
+		});
+
+		const { stderr } = await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({
+			'.': './dist/index.js',
+		});
+		expect(stderr).not.toContain("don't exist");
 	});
 
 	test('--published-only=false disables path pruning', async () => {

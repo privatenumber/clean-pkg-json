@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
-import { getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
+import { getLocalFiles, getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
 
 const { name, version, description } = pkg;
 
@@ -54,14 +54,17 @@ const pruneUnpublishedFields = async (
 	fields: string[],
 ) => {
 	const cwd = process.cwd();
-	const publishedFiles = await getPublishedFiles(cwd, packageJson);
+	const [publishedFiles, localFiles] = await Promise.all([
+		getPublishedFiles(cwd, packageJson),
+		getLocalFiles(cwd),
+	]);
 	const missingFiles = new Set<string>();
 
 	for (const field of fields) {
 		const { result, removedMissingFiles } = pruneUnpublishedPaths(
 			packageJson[field],
 			publishedFiles,
-			cwd,
+			localFiles,
 		);
 		for (const file of removedMissingFiles) {
 			missingFiles.add(file);
