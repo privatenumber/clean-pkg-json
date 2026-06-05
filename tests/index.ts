@@ -1,8 +1,11 @@
 import path from 'path';
+import { promises as nodeFs } from 'node:fs';
 import { describe, test, expect } from 'manten';
 import spawn from 'nano-spawn';
 import { createFixture } from 'fs-fixture';
 import type { PackageJson } from 'type-fest';
+import { pruneUnpublishedPaths } from '../src/prune-unpublished-paths.ts';
+import { createPathMatcher, pathMatches } from '../src/path-matcher.ts';
 
 const cleanPkgJsonPath = path.resolve('./src/index.ts');
 
@@ -488,5 +491,57 @@ describe('prune unpublished paths', () => {
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({ '.': { default: './dist/index.js' } });
 		expect(stderr).not.toContain("don't exist");
+	});
+
+	test('only reads the referenced directory for wildcards, not the whole tree', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'unrelated/deep/file.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./utils/*': './src/utils/*.ts',
+				},
+			}),
+		});
+
+		const readDirectories: string[] = [];
+		const spyFs = {
+			stat: nodeFs.stat,
+			readdir: ((directory: string, options: unknown) => {
+				readDirectories.push(directory.split(path.sep).join('/'));
+				return nodeFs.readdir(directory as string, options as never);
+			}) as typeof nodeFs.readdir,
+		};
+
+		const packageJson = await fixture.readJson<Record<string, unknown>>('package.json');
+		await pruneUnpublishedPaths(fixture.path, packageJson, () => {}, spyFs);
+
+		// The only pruned specifier is the wildcard './src/utils/*.ts',
+		// so we must scan its directory (src/utils) and nothing else.
+		const root = fixture.path.split(path.sep).join('/');
+		expect(readDirectories).not.toContain(root);
+		expect(readDirectories.some(directory => directory.endsWith('/unrelated'))).toBe(false);
+		expect(readDirectories.some(directory => directory.endsWith('/src/utils'))).toBe(true);
+		expect(packageJson.exports).toStrictEqual({ '.': './dist/index.js' });
+	});
+});
+
+describe('path matcher', () => {
+	test('single star captures the wildcard value', () => {
+		const matcher = createPathMatcher('dist/*.js');
+		expect(pathMatches(matcher, 'dist/index.js')).toBe('index');
+		expect(pathMatches(matcher, 'dist/nested/file.js')).toBe('nested/file');
+		expect(pathMatches(matcher, 'dist/index.mjs')).toBeUndefined();
+		expect(pathMatches(matcher, 'src/index.js')).toBeUndefined();
+	});
+
+	test('multiple stars must capture the same value', () => {
+		const matcher = createPathMatcher('locale/*/*.js');
+		expect(pathMatches(matcher, 'locale/en/en.js')).toBe('en');
+		expect(pathMatches(matcher, 'locale/en/fr.js')).toBeUndefined();
 	});
 });
