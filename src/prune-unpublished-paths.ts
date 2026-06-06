@@ -110,32 +110,46 @@ const fileExists = async (
 	}
 };
 
+const ignoredDirectories = new Set(['node_modules', '.git']);
+
 /**
- * Lists files (posix paths relative to `cwd`) under a directory. Returns an
- * empty list if the directory doesn't exist. Best-effort: never throws.
+ * Lists files (posix paths relative to `cwd`) under a directory, skipping
+ * `node_modules`/`.git` (which can't appear in export targets and would bloat
+ * the scan). Returns an empty list if the directory doesn't exist; never throws.
  */
 const listFilesUnder = async (
 	fs: FileSystem,
 	cwd: string,
 	directory: string,
 ) => {
-	let entries;
-	try {
-		entries = await fs.readdir(directory, {
-			recursive: true,
-			withFileTypes: true,
-		});
-	} catch {
-		return [];
-	}
-
 	const files: string[] = [];
-	for (const entry of entries) {
-		if (entry.isFile()) {
-			const filePath = path.relative(cwd, path.join(entry.parentPath, entry.name));
-			files.push(filePath.split(path.sep).join('/'));
+
+	const walk = async (current: string) => {
+		let entries;
+		try {
+			entries = await fs.readdir(current, { withFileTypes: true });
+		} catch {
+			return;
 		}
-	}
+
+		await Promise.all(
+			entries.map(async (entry) => {
+				if (entry.isDirectory()) {
+					if (!ignoredDirectories.has(entry.name)) {
+						await walk(path.join(current, entry.name));
+					}
+					return;
+				}
+
+				if (entry.isFile()) {
+					const filePath = path.relative(cwd, path.join(current, entry.name));
+					files.push(filePath.split(path.sep).join('/'));
+				}
+			}),
+		);
+	};
+
+	await walk(directory);
 	return files;
 };
 

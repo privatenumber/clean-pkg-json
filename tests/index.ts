@@ -528,6 +528,30 @@ describe('prune unpublished paths', () => {
 		expect(readDirectories.some(directory => directory.endsWith('/src/utils'))).toBe(true);
 		expect(packageJson.exports).toStrictEqual({ '.': './dist/index.js' });
 	});
+
+	test('wildcard existence scan ignores node_modules', async () => {
+		// A root-scoped wildcard scans the package root; node_modules files must
+		// not count as a match (Node forbids node_modules in export targets).
+		await using fixture = await createFixture({
+			'dist/index.cjs': '',
+			'node_modules/dep/foo.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.cjs',
+					'./*': './*.js',
+				},
+			}),
+		});
+
+		const { stderr } = await cleanPkgJson(fixture.path);
+
+		const result = await fixture.readJson<PackageJson>('package.json');
+		expect(result.exports).toStrictEqual({ '.': './dist/index.cjs' });
+		expect(stderr).toContain('./*.js');
+	});
 });
 
 describe('path matcher', () => {
