@@ -531,17 +531,49 @@ describe('prune unpublished paths', () => {
 });
 
 describe('path matcher', () => {
-	test('single star captures the wildcard value', () => {
-		const matcher = createPathMatcher('dist/*.js');
-		expect(pathMatches(matcher, 'dist/index.js')).toBe('index');
-		expect(pathMatches(matcher, 'dist/nested/file.js')).toBe('nested/file');
-		expect(pathMatches(matcher, 'dist/index.mjs')).toBeUndefined();
-		expect(pathMatches(matcher, 'src/index.js')).toBeUndefined();
+	// Whether a file path is a possible expansion of a `*` target pattern,
+	// per Node's exports/imports resolution: every `*` is replaced by the same
+	// captured value (which may contain `/`).
+	// https://nodejs.org/api/packages.html#subpath-patterns
+	const matches = (
+		pattern: string,
+		filePath: string,
+	) => pathMatches(createPathMatcher(pattern), filePath);
+
+	test('single star matches by prefix and suffix', () => {
+		expect(matches('dist/*.js', 'dist/index.js')).toBe(true);
+		expect(matches('dist/*.js', 'dist/index.mjs')).toBe(false);
+		expect(matches('dist/*.js', 'src/index.js')).toBe(false);
 	});
 
-	test('multiple stars must capture the same value', () => {
-		const matcher = createPathMatcher('locale/*/*.js');
-		expect(pathMatches(matcher, 'locale/en/en.js')).toBe('en');
-		expect(pathMatches(matcher, 'locale/en/fr.js')).toBeUndefined();
+	test('star spans path separators', () => {
+		// Node: "All instances of * ... replaced ... including if it contains
+		// any / separators."
+		expect(matches('features/*', 'features/x')).toBe(true);
+		expect(matches('features/*', 'features/y/y')).toBe(true);
+		expect(matches('dist/*.js', 'dist/nested/file.js')).toBe(true);
+	});
+
+	test('star may capture an empty value', () => {
+		expect(matches('dist/*.js', 'dist/.js')).toBe(true);
+	});
+
+	test('does not match when prefix and suffix would overlap', () => {
+		// `aaa*aaa` needs at least 6 chars; the captured value can't be negative.
+		expect(matches('aaa*aaa', 'aaaXaaa')).toBe(true);
+		expect(matches('aaa*aaa', 'aaaaa')).toBe(false);
+	});
+
+	test('repeated stars must resolve to the same value', () => {
+		expect(matches('dist/*-*.js', 'dist/a-a.js')).toBe(true);
+		expect(matches('dist/*-*.js', 'dist/a-b.js')).toBe(false);
+		expect(matches('locale/*/*.js', 'locale/en/en.js')).toBe(true);
+		expect(matches('locale/*/*.js', 'locale/en/fr.js')).toBe(false);
+	});
+
+	test('repeated stars match when the captured value contains the separator', () => {
+		// `*-*` with capture `foo-bar` expands to `foo-bar-foo-bar`.
+		expect(matches('dist/*-*.js', 'dist/foo-bar-foo-bar.js')).toBe(true);
+		expect(matches('dist/*-*.js', 'dist/foo-bar.js')).toBe(false);
 	});
 });

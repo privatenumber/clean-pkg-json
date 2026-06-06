@@ -1,70 +1,95 @@
 const STAR = '*';
 
 export type PathMatcher = {
-	prefix: string;
-	middle: string[];
-	suffix: string;
+	// Literal parts of the pattern, split on `*`.
+	segments: string[];
+
+	// Number of `*` (segments.length - 1).
+	starCount: number;
+
+	// Combined length of all literal segments.
+	literalLength: number;
 };
 
-/**
- * Parses a `*` pattern (e.g. `dist/*.js`) into prefix/middle/suffix segments
- * once, so it can be matched against many file paths cheaply.
- */
 export const createPathMatcher = (
 	pattern: string,
 ): PathMatcher => {
 	const segments = pattern.split(STAR);
-	const lastIndex = segments.length - 1;
+	let literalLength = 0;
+	for (const segment of segments) {
+		literalLength += segment.length;
+	}
+
 	return {
-		prefix: segments[0],
-		middle: segments.slice(1, lastIndex),
-		suffix: segments[lastIndex],
+		segments,
+		starCount: segments.length - 1,
+		literalLength,
 	};
 };
 
 /**
- * Matches a file path against a parsed pattern, returning the `*` capture
- * (which may be an empty string) or `undefined` when it doesn't match. Multiple
- * stars must capture the same value.
+ * Places each literal segment at its fixed offset (given the per-star value
+ * length) and confirms every captured slice is identical.
+ */
+const segmentsAlign = (
+	segments: string[],
+	starCount: number,
+	valueLength: number,
+	filePath: string,
+) => {
+	let position = 0;
+	let value: string | undefined;
+	for (let index = 0; index < segments.length; index += 1) {
+		const segment = segments[index];
+		if (!filePath.startsWith(segment, position)) {
+			return false;
+		}
+		position += segment.length;
+
+		// A captured value follows every segment except the last.
+		if (index < starCount) {
+			const captured = filePath.slice(position, position + valueLength);
+			if (value === undefined) {
+				value = captured;
+			} else if (value !== captured) {
+				return false;
+			}
+			position += valueLength;
+		}
+	}
+
+	return position === filePath.length;
+};
+
+/**
+ * Whether a file path is a possible expansion of a `*` pattern. Per Node's
+ * resolution, every `*` is replaced by the same captured value (which may
+ * contain `/`), so the matched value's length is fixed by the path length.
  */
 export const pathMatches = (
-	{ prefix, middle, suffix }: PathMatcher,
+	{ segments, starCount, literalLength }: PathMatcher,
 	filePath: string,
-): string | undefined => {
-	if (
-		!filePath.startsWith(prefix)
-		|| !filePath.endsWith(suffix)
-	) {
-		return;
+): boolean => {
+	if (starCount === 0) {
+		return filePath === segments[0];
 	}
 
-	const inner = filePath.slice(prefix.length, -suffix.length || undefined);
-	if (middle.length === 0) {
-		return inner;
+	// Single star (the common case): prefix + value + suffix. The length guard
+	// rejects paths too short to fit a non-overlapping prefix and suffix.
+	if (starCount === 1) {
+		return (
+			filePath.length >= literalLength
+			&& filePath.startsWith(segments[0])
+			&& filePath.endsWith(segments[1])
+		);
 	}
 
-	let lastIndex = 0;
-	let starValue = '';
-	for (const segment of middle) {
-		const segmentIndex = inner.indexOf(segment, lastIndex);
-		if (segmentIndex === -1) {
-			return;
-		}
-
-		const extracted = inner.slice(lastIndex, segmentIndex);
-		if (!starValue) {
-			starValue = extracted;
-		} else if (starValue !== extracted) {
-			return;
-		}
-
-		lastIndex = segmentIndex + segment.length;
+	// Multiple stars all bind to the same value, so its length is determined by
+	// the leftover after the literals.
+	const valueTotal = filePath.length - literalLength;
+	if (valueTotal < 0 || valueTotal % starCount !== 0) {
+		return false;
 	}
 
-	// The final star (after the last fixed segment) must match the same value.
-	if (inner.slice(lastIndex) !== starValue) {
-		return;
-	}
-
-	return starValue;
+	return segmentsAlign(segments, starCount, valueTotal / starCount, filePath);
 };

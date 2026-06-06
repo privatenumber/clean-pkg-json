@@ -38,7 +38,7 @@ const specifierMatches = (
 
 	const matcher = createPathMatcher(target);
 	return Array.from(files).some(
-		file => pathMatches(matcher, file) !== undefined,
+		file => pathMatches(matcher, file),
 	);
 };
 
@@ -158,8 +158,11 @@ const findMissingFiles = async (
 		let exists: boolean;
 		if (target.includes('*')) {
 			const matcher = createPathMatcher(target);
-			const lastSlash = matcher.prefix.lastIndexOf('/');
-			const scope = lastSlash === -1 ? '.' : matcher.prefix.slice(0, lastSlash);
+			// The literal prefix (before the first `*`) bounds the directory we
+			// need to scan, so we never read the whole tree.
+			const prefix = matcher.segments[0];
+			const lastSlash = prefix.lastIndexOf('/');
+			const scope = lastSlash === -1 ? '.' : prefix.slice(0, lastSlash);
 			const directory = path.resolve(cwd, scope);
 
 			let files = directoryCache.get(directory);
@@ -167,7 +170,7 @@ const findMissingFiles = async (
 				files = await listFilesUnder(fs, cwd, directory);
 				directoryCache.set(directory, files);
 			}
-			exists = files.some(file => pathMatches(matcher, file) !== undefined);
+			exists = files.some(file => pathMatches(matcher, file));
 		} else {
 			exists = await fileExists(fs, path.resolve(cwd, target));
 		}
