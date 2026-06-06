@@ -153,10 +153,46 @@ const listFilesUnder = async (
 	return files;
 };
 
+// A resolved path is within the package only if it's the root or under it.
+// Targets that escape (via `../`) are invalid per Node and never published.
+const isWithin = (root: string, resolved: string) => (
+	resolved === root || resolved.startsWith(root + path.sep)
+);
+
+const targetExistsOnDisk = async (
+	fs: FileSystem,
+	cwd: string,
+	target: string,
+	directoryCache: Map<string, string[]>,
+) => {
+	if (!target.includes('*')) {
+		const resolved = path.resolve(cwd, target);
+		return isWithin(cwd, resolved) && fileExists(fs, resolved);
+	}
+
+	const matcher = createPathMatcher(target);
+	// The literal prefix (before the first `*`) bounds the directory we scan,
+	// so we never read the whole tree.
+	const prefix = matcher.segments[0];
+	const lastSlash = prefix.lastIndexOf('/');
+	const scope = lastSlash === -1 ? '.' : prefix.slice(0, lastSlash);
+	const directory = path.resolve(cwd, scope);
+	if (!isWithin(cwd, directory)) {
+		return false;
+	}
+
+	let files = directoryCache.get(directory);
+	if (!files) {
+		files = await listFilesUnder(fs, cwd, directory);
+		directoryCache.set(directory, files);
+	}
+	return files.some(file => pathMatches(matcher, file));
+};
+
 /**
  * Of the dropped specifiers, finds the ones whose target file doesn't exist on
  * disk (likely an unbuilt artifact, rather than a deliberately excluded source
- * file). Only touches the filesystem within the referenced scopes.
+ * file). Only touches the filesystem within the package root's referenced scopes.
  */
 const findMissingFiles = async (
 	fs: FileSystem,
@@ -167,28 +203,7 @@ const findMissingFiles = async (
 	const directoryCache = new Map<string, string[]>();
 
 	for (const specifier of prunedSpecifiers) {
-		const target = specifier.slice(2);
-
-		let exists: boolean;
-		if (target.includes('*')) {
-			const matcher = createPathMatcher(target);
-			// The literal prefix (before the first `*`) bounds the directory we
-			// need to scan, so we never read the whole tree.
-			const prefix = matcher.segments[0];
-			const lastSlash = prefix.lastIndexOf('/');
-			const scope = lastSlash === -1 ? '.' : prefix.slice(0, lastSlash);
-			const directory = path.resolve(cwd, scope);
-
-			let files = directoryCache.get(directory);
-			if (!files) {
-				files = await listFilesUnder(fs, cwd, directory);
-				directoryCache.set(directory, files);
-			}
-			exists = files.some(file => pathMatches(matcher, file));
-		} else {
-			exists = await fileExists(fs, path.resolve(cwd, target));
-		}
-
+		const exists = await targetExistsOnDisk(fs, cwd, specifier.slice(2), directoryCache);
 		if (!exists) {
 			missingFiles.add(specifier);
 		}

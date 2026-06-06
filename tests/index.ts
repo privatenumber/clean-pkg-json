@@ -529,6 +529,44 @@ describe('prune unpublished paths', () => {
 		expect(packageJson.exports).toStrictEqual({ '.': './dist/index.js' });
 	});
 
+	test('never touches the filesystem outside the package root', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'test-package',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./escape': './../outside.js',
+					'./glob': './../*.js',
+				},
+			}),
+		});
+
+		const accessed: string[] = [];
+		const record = (target: string) => accessed.push(target.split(path.sep).join('/'));
+		const spyFs = {
+			stat: ((target: string) => {
+				record(target);
+				return nodeFs.stat(target);
+			}) as typeof nodeFs.stat,
+			readdir: ((target: string, options: unknown) => {
+				record(target);
+				return nodeFs.readdir(target as string, options as never);
+			}) as typeof nodeFs.readdir,
+		};
+
+		const packageJson = await fixture.readJson<Record<string, unknown>>('package.json');
+		await pruneUnpublishedPaths(fixture.path, packageJson, () => {}, spyFs);
+
+		const root = fixture.path.split(path.sep).join('/');
+		const allWithinRoot = accessed.every(
+			target => target === root || target.startsWith(`${root}/`),
+		);
+		expect(allWithinRoot).toBe(true);
+	});
+
 	test('wildcard existence scan ignores node_modules', async () => {
 		// A root-scoped wildcard scans the package root; node_modules files must
 		// not count as a match (Node forbids node_modules in export targets).
@@ -578,8 +616,10 @@ describe('path matcher', () => {
 		expect(matches('dist/*.js', 'dist/nested/file.js')).toBe(true);
 	});
 
-	test('star may capture an empty value', () => {
-		expect(matches('dist/*.js', 'dist/.js')).toBe(true);
+	test('star requires a non-empty capture', () => {
+		// Node's key-side `*` must capture at least one character.
+		expect(matches('dist/*.js', 'dist/x.js')).toBe(true);
+		expect(matches('dist/*.js', 'dist/.js')).toBe(false);
 	});
 
 	test('does not match when prefix and suffix would overlap', () => {

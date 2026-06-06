@@ -74,20 +74,21 @@ export const pathMatches = (
 		return filePath === segments[0];
 	}
 
-	// Single star (the common case): prefix + value + suffix. The length guard
-	// rejects paths too short to fit a non-overlapping prefix and suffix.
+	// Single star (the common case): prefix + value + suffix. `>` (not `>=`)
+	// because Node requires the `*` to capture at least one character.
 	if (starCount === 1) {
 		return (
-			filePath.length >= literalLength
+			filePath.length > literalLength
 			&& filePath.startsWith(segments[0])
 			&& filePath.endsWith(segments[1])
 		);
 	}
 
 	// Multiple stars all bind to the same value, so its length is determined by
-	// the leftover after the literals.
+	// the leftover after the literals. Each star must capture at least one
+	// character (value length >= 1), so the leftover must be at least starCount.
 	const valueTotal = filePath.length - literalLength;
-	if (valueTotal < 0 || valueTotal % starCount !== 0) {
+	if (valueTotal < starCount || valueTotal % starCount !== 0) {
 		return false;
 	}
 
