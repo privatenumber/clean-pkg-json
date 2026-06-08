@@ -1,7 +1,7 @@
 import { promises as nodeFs } from 'node:fs';
 import path from 'node:path';
 import {
-	cyan, green, magenta, yellow,
+	cyan, gray, magenta, yellow,
 } from 'ansis';
 import packlist from 'npm-packlist';
 import { createPathMatcher, pathMatches } from './path-matcher.ts';
@@ -297,7 +297,7 @@ const warnRemovedEntry = ({ subpath, conditions, target }: RemovedEntry) => {
 		: '';
 	console.warn(
 		`${yellow('⚠️ Warning:')} ${cyan(subpath)}${conditionsText} `
-		+ `was removed because ${green(target)} doesn't exist`,
+		+ `was removed because ${gray.dim(target)} doesn't exist`,
 	);
 };
 
