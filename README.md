@@ -74,6 +74,8 @@ For `scripts`, only install hooks (`preinstall`, `install`, `postinstall`, `depe
 
 For `exports` and `imports`, entries referencing files not included in the published package are pruned. This prevents consumers from resolving to non-existent source files. Conditional entries are partially pruned — only unpublished branches are removed. Pass `--published-only=false` to disable this behavior.
 
+If an entry is removed because its target file doesn't exist on disk, a warning is printed. This usually means `clean-pkg-json` ran before the build.
+
 ## Install
 
 ```sh

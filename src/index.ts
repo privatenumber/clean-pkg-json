@@ -1,8 +1,9 @@
 import { promises as fs } from 'node:fs';
+import { red } from 'ansis';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
-import { getPublishedFiles, pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
+import { pruneUnpublishedPaths } from './prune-unpublished-paths.ts';
 
 const { name, version, description } = pkg;
 
@@ -49,6 +50,21 @@ const log = (...args: any[]) => {
 	}
 };
 
+const parsePackageJson = (contents: string) => {
+	try {
+		return JSON.parse(contents);
+	} catch (error) {
+		const reason = error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to parse ${packageJsonPath}: ${reason}`);
+	}
+};
+
+const reportError = (error: unknown) => {
+	const message = error instanceof Error ? error.message : String(error);
+	console.error(`${red('Error:')} ${message}`);
+	process.exitCode = 1;
+};
+
 (async () => {
 	const isDryRun = argv.flags.dry || process.env.npm_config_dry_run === 'true';
 
@@ -62,7 +78,7 @@ const log = (...args: any[]) => {
 	}
 
 	const packageJsonString = await fs.readFile(packageJsonPath, 'utf8');
-	const packageJson = JSON.parse(packageJsonString);
+	const packageJson = parsePackageJson(packageJsonString);
 
 	const keepProperties = new Set([
 		...defaultKeepProperties,
@@ -98,20 +114,8 @@ const log = (...args: any[]) => {
 		delete packageJson[property];
 	}
 
-	const fieldsToPrune = argv.flags.publishedOnly
-		? ['imports', 'exports'].filter(field => packageJson[field])
-		: [];
-	if (fieldsToPrune.length > 0) {
-		const publishedFiles = await getPublishedFiles(process.cwd(), packageJson);
-		for (const field of fieldsToPrune) {
-			const pruned = pruneUnpublishedPaths(packageJson[field], publishedFiles);
-			if (pruned === undefined) {
-				log(`Removing property "${field}" (no published files referenced)`);
-				delete packageJson[field];
-			} else {
-				packageJson[field] = pruned;
-			}
-		}
+	if (argv.flags.publishedOnly) {
+		await pruneUnpublishedPaths(process.cwd(), packageJson, log);
 	}
 
 	const newPackageJsonString = JSON.stringify(packageJson, null, 2);
@@ -126,4 +130,4 @@ const log = (...args: any[]) => {
 		);
 		log(`Updated ${packageJsonPath}`);
 	}
-})();
+})().catch(reportError);
