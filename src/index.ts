@@ -50,6 +50,21 @@ const log = (...args: any[]) => {
 	}
 };
 
+const parsePackageJson = (contents: string) => {
+	try {
+		return JSON.parse(contents);
+	} catch (error) {
+		const reason = error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to parse ${packageJsonPath}: ${reason}`);
+	}
+};
+
+const reportError = (error: unknown) => {
+	const message = error instanceof Error ? error.message : String(error);
+	console.error(`${red('❌ Error:')} ${message}`);
+	process.exitCode = 1;
+};
+
 (async () => {
 	const isDryRun = argv.flags.dry || process.env.npm_config_dry_run === 'true';
 
@@ -59,13 +74,11 @@ const log = (...args: any[]) => {
 	);
 
 	if (!packageJsonExists) {
-		console.error(red(`${packageJsonPath} does not exist`));
-		process.exitCode = 1;
-		return;
+		throw new Error(`${packageJsonPath} does not exist`);
 	}
 
 	const packageJsonString = await fs.readFile(packageJsonPath, 'utf8');
-	const packageJson = JSON.parse(packageJsonString);
+	const packageJson = parsePackageJson(packageJsonString);
 
 	const keepProperties = new Set([
 		...defaultKeepProperties,
@@ -117,4 +130,4 @@ const log = (...args: any[]) => {
 		);
 		log(`Updated ${packageJsonPath}`);
 	}
-})();
+})().catch(reportError);

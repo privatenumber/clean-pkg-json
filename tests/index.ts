@@ -157,7 +157,19 @@ describe('clean-pkg-json', () => {
 	test('error on missing package.json', async () => {
 		await using fixture = await createFixture({});
 
-		await expect(cleanPkgJson(fixture.path)).rejects.toThrow();
+		const result = await cleanPkgJson(fixture.path).catch(error => error);
+		expect(result.exitCode).toBe(1);
+		expect(result.stderr).toContain('Error: ./package.json does not exist');
+	});
+
+	test('error on malformed package.json', async () => {
+		await using fixture = await createFixture({
+			'package.json': '{ "name": "x", bad }',
+		});
+
+		const result = await cleanPkgJson(fixture.path).catch(error => error);
+		expect(result.exitCode).toBe(1);
+		expect(result.stderr).toContain('Error: Failed to parse ./package.json');
 	});
 });
 
