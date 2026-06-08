@@ -401,7 +401,7 @@ describe('prune unpublished paths', () => {
 		expect(result.exports).toStrictEqual({
 			'.': './dist/index.js',
 		});
-		expect(stderr).not.toContain("don't exist");
+		expect(stderr).not.toContain('Warning');
 	});
 
 	test('--published-only=false disables path pruning', async () => {
@@ -490,7 +490,52 @@ describe('prune unpublished paths', () => {
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({ '.': { default: './dist/index.js' } });
-		expect(stderr).not.toContain("don't exist");
+		expect(stderr).not.toContain('Warning');
+	});
+
+	test('warning names the subpath, conditions, and missing target', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'my-pkg',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./sub': {
+						node: {
+							require: './dist/sub.cjs',
+						},
+					},
+				},
+			}),
+		});
+
+		const { stderr } = await cleanPkgJson(fixture.path);
+
+		expect(stderr).toContain('my-pkg/sub');
+		expect(stderr).toContain('node + require');
+		expect(stderr).toContain('was removed because ./dist/sub.cjs');
+	});
+
+	test('warning omits conditions for a direct subpath target', async () => {
+		await using fixture = await createFixture({
+			'dist/index.js': '',
+			'package.json': JSON.stringify({
+				name: 'my-pkg',
+				version: '1.0.0',
+				files: ['dist'],
+				exports: {
+					'.': './dist/index.js',
+					'./missing': './dist/missing.js',
+				},
+			}),
+		});
+
+		const { stderr } = await cleanPkgJson(fixture.path);
+
+		expect(stderr).toContain('my-pkg/missing was removed because ./dist/missing.js');
+		expect(stderr).not.toContain('with conditions');
 	});
 
 	test('only reads the referenced directory for wildcards, not the whole tree', async () => {
