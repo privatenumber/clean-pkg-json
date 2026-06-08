@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import { red } from 'ansis';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
@@ -58,7 +59,9 @@ const log = (...args: any[]) => {
 	);
 
 	if (!packageJsonExists) {
-		throw new Error(`${packageJsonPath} does not exist`);
+		console.error(red(`${packageJsonPath} does not exist`));
+		process.exitCode = 1;
+		return;
 	}
 
 	const packageJsonString = await fs.readFile(packageJsonPath, 'utf8');

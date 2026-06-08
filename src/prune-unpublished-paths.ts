@@ -1,5 +1,6 @@
 import { promises as nodeFs } from 'node:fs';
 import path from 'node:path';
+import { yellow } from 'ansis';
 import packlist from 'npm-packlist';
 import { createPathMatcher, pathMatches } from './path-matcher.ts';
 
@@ -213,11 +214,11 @@ const findMissingFiles = async (
 };
 
 const warnMissingFiles = (missingFiles: Set<string>) => {
-	console.warn(
-		'clean-pkg-json: removed exports/imports entries pointing to files that '
+	console.warn(yellow(
+		'Removed exports/imports entries pointing to files that '
 		+ `don't exist: ${Array.from(missingFiles).join(', ')}\n`
-		+ 'If these are build outputs, run clean-pkg-json after building.',
-	);
+		+ 'If these are build outputs, build the package first.',
+	));
 };
 
 /**
