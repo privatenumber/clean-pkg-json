@@ -159,7 +159,7 @@ describe('clean-pkg-json', () => {
 
 		const result = await cleanPkgJson(fixture.path).catch(error => error);
 		expect(result.exitCode).toBe(1);
-		expect(result.stderr).toContain('Error: ./package.json does not exist');
+		expect(result.stderr.trim()).toBe('Error: ./package.json does not exist');
 	});
 
 	test('error on malformed package.json', async () => {
@@ -169,7 +169,8 @@ describe('clean-pkg-json', () => {
 
 		const result = await cleanPkgJson(fixture.path).catch(error => error);
 		expect(result.exitCode).toBe(1);
-		expect(result.stderr).toContain('Error: Failed to parse ./package.json');
+		// The trailing JSON parse reason is provided by Node and varies by version.
+		expect(result.stderr).toContain('Error: Failed to parse ./package.json: ');
 	});
 });
 
@@ -396,7 +397,9 @@ describe('prune unpublished paths', () => {
 		expect(result.exports).toStrictEqual({
 			'.': './dist/index.js',
 		});
-		expect(stderr).toContain('./src/utils/*.ts');
+		expect(stderr.trim()).toBe(
+			"Warning: test-package/utils/* was removed because ./src/utils/*.ts doesn't exist",
+		);
 	});
 
 	test('wildcard patterns — pruned silently when matching files exist but are excluded', async () => {
@@ -420,7 +423,7 @@ describe('prune unpublished paths', () => {
 		expect(result.exports).toStrictEqual({
 			'.': './dist/index.js',
 		});
-		expect(stderr).not.toContain('Warning');
+		expect(stderr).toBe('');
 	});
 
 	test('--published-only=false disables path pruning', async () => {
@@ -485,7 +488,9 @@ describe('prune unpublished paths', () => {
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({ '.': './dist/index.js' });
-		expect(stderr).toContain('./not-built.js');
+		expect(stderr.trim()).toBe(
+			"Warning: test-package/sub was removed because ./not-built.js doesn't exist",
+		);
 	});
 
 	test('does not warn when removing an excluded file that exists on disk', async () => {
@@ -509,7 +514,7 @@ describe('prune unpublished paths', () => {
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({ '.': { default: './dist/index.js' } });
-		expect(stderr).not.toContain('Warning');
+		expect(stderr).toBe('');
 	});
 
 	test('warning names the subpath, conditions, and missing target', async () => {
@@ -532,9 +537,10 @@ describe('prune unpublished paths', () => {
 
 		const { stderr } = await cleanPkgJson(fixture.path);
 
-		expect(stderr).toContain('my-pkg/sub');
-		expect(stderr).toContain('node + require');
-		expect(stderr).toContain('was removed because ./dist/sub.cjs');
+		expect(stderr.trim()).toBe(
+			'Warning: my-pkg/sub with conditions node + require '
+			+ "was removed because ./dist/sub.cjs doesn't exist",
+		);
 	});
 
 	test('warning omits conditions for a direct subpath target', async () => {
@@ -553,8 +559,9 @@ describe('prune unpublished paths', () => {
 
 		const { stderr } = await cleanPkgJson(fixture.path);
 
-		expect(stderr).toContain('my-pkg/missing was removed because ./dist/missing.js');
-		expect(stderr).not.toContain('with conditions');
+		expect(stderr.trim()).toBe(
+			"Warning: my-pkg/missing was removed because ./dist/missing.js doesn't exist",
+		);
 	});
 
 	test('only reads the referenced directory for wildcards, not the whole tree', async () => {
@@ -652,7 +659,9 @@ describe('prune unpublished paths', () => {
 
 		const result = await fixture.readJson<PackageJson>('package.json');
 		expect(result.exports).toStrictEqual({ '.': './dist/index.cjs' });
-		expect(stderr).toContain('./*.js');
+		expect(stderr.trim()).toBe(
+			"Warning: test-package/* was removed because ./*.js doesn't exist",
+		);
 	});
 });
 

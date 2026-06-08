@@ -61,7 +61,7 @@ const parsePackageJson = (contents: string) => {
 
 const reportError = (error: unknown) => {
 	const message = error instanceof Error ? error.message : String(error);
-	console.error(`${red('❌ Error:')} ${message}`);
+	console.error(`${red('Error:')} ${message}`);
 	process.exitCode = 1;
 };
 

@@ -296,7 +296,7 @@ const warnRemovedEntry = ({ subpath, conditions, target }: RemovedEntry) => {
 		? ` with conditions ${magenta(conditions.join(' + '))}`
 		: '';
 	console.warn(
-		`${yellow('⚠️ Warning:')} ${cyan(subpath)}${conditionsText} `
+		`${yellow('Warning:')} ${cyan(subpath)}${conditionsText} `
 		+ `was removed because ${dim(target)} doesn't exist`,
 	);
 };
