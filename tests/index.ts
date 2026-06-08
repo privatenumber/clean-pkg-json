@@ -9,6 +9,9 @@ import { createPathMatcher, pathMatches } from '../src/path-matcher.ts';
 
 const cleanPkgJsonPath = path.resolve('./src/index.ts');
 
+// eslint-disable-next-line no-control-regex
+const stripAnsi = (value: string) => value.replaceAll(/\u001B\[[0-9;]*m/g, '');
+
 const cleanPkgJson = (
 	cwd: string,
 	flags: string[] = [],
@@ -512,10 +515,11 @@ describe('prune unpublished paths', () => {
 		});
 
 		const { stderr } = await cleanPkgJson(fixture.path);
+		const output = stripAnsi(stderr);
 
-		expect(stderr).toContain('my-pkg/sub');
-		expect(stderr).toContain('node + require');
-		expect(stderr).toContain('was removed because ./dist/sub.cjs');
+		expect(output).toContain('my-pkg/sub');
+		expect(output).toContain('node + require');
+		expect(output).toContain('was removed because ./dist/sub.cjs');
 	});
 
 	test('warning omits conditions for a direct subpath target', async () => {
@@ -533,9 +537,10 @@ describe('prune unpublished paths', () => {
 		});
 
 		const { stderr } = await cleanPkgJson(fixture.path);
+		const output = stripAnsi(stderr);
 
-		expect(stderr).toContain('my-pkg/missing was removed because ./dist/missing.js');
-		expect(stderr).not.toContain('with conditions');
+		expect(output).toContain('my-pkg/missing was removed because ./dist/missing.js');
+		expect(output).not.toContain('with conditions');
 	});
 
 	test('only reads the referenced directory for wildcards, not the whole tree', async () => {

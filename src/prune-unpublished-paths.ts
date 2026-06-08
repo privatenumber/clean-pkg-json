@@ -1,6 +1,8 @@
 import { promises as nodeFs } from 'node:fs';
 import path from 'node:path';
-import { yellow } from 'ansis';
+import {
+	cyan, green, magenta, yellow,
+} from 'ansis';
 import packlist from 'npm-packlist';
 import { createPathMatcher, pathMatches } from './path-matcher.ts';
 
@@ -291,11 +293,11 @@ const findMissingEntries = async (
 
 const warnRemovedEntry = ({ subpath, conditions, target }: RemovedEntry) => {
 	const conditionsText = conditions.length > 0
-		? ` with conditions ${conditions.join(' + ')}`
+		? ` with conditions ${magenta(conditions.join(' + '))}`
 		: '';
 	console.warn(
-		`${yellow('⚠️ Warning:')} ${subpath}${conditionsText} `
-		+ `was removed because ${target} doesn't exist`,
+		`${yellow('⚠️ Warning:')} ${cyan(subpath)}${conditionsText} `
+		+ `was removed because ${green(target)} doesn't exist`,
 	);
 };
 
