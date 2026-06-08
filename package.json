@@ -22,7 +22,7 @@
 	],
 	"type": "module",
 	"bin": "dist/index.mjs",
-	"packageManager": "pnpm@9.15.4",
+	"packageManager": "pnpm@11.5.2",
 	"scripts": {
 		"build": "pkgroll --target=node22 --minify",
 		"lint": "lintroll --cache .",
