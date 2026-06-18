@@ -44,7 +44,7 @@
 		"nano-spawn": "^2.1.0",
 		"npm-packlist": "^10.0.4",
 		"pkgroll": "^2.27.1",
-		"skills-npm": "^1.1.1",
+		"skills-npm": "^1.2.0",
 		"type-fest": "^5.7.0",
 		"typescript": "^5.9.3"
 	}
