@@ -193,4 +193,4 @@ When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-jso
 
 ## Agent Skills
 
-This package ships with [agent skills](https://agentskills.io) for AI coding assistants. Set up [`skills-npm`](https://github.com/antfu/skills-npm) to use them.
+This package ships with [agent skills](https://agentskills.io) for AI coding assistants.
