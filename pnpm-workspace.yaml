@@ -1,3 +1,15 @@
 allowBuilds:
   esbuild: false
   unrs-resolver: false
+permissions:
+  cleye:
+    skills: true
+  fs-fixture:
+    skills: true
+  lintroll:
+    skills: true
+  manten:
+    skills: true
+skills:
+  dirs:
+    - .agents/skills
