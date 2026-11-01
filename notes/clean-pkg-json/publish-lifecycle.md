@@ -15,9 +15,9 @@ Last verified 2026-11-02 against npm 12.2.1 ([`v12.2.1`](https://github.com/npm/
 Consequences for the allowlist:
 
 - `files`, `bundleDependencies`, `private`, and `publishConfig` are read after `prepack`. They must be kept even though consumers do not need them at runtime.
-- Inputs to `prepare()` (`directories`, `gypfile`) change the registry manifest. Removing them changes what consumers receive. See [property-vetting.md](./property-vetting.md#gaps-found-by-this-vetting).
+- Inputs to `prepare()` (`directories`, `gypfile`) change the registry manifest. Removing them changes what consumers receive, so both are kept. See [property-vetting.md](./property-vetting.md#install).
 
-Experiment: the canonical `bundleDependencies` spelling is removed by the current allowlist, and npm then omits the bundled dependency from the tarball.
+Experiment: when clean-pkg-json removes the canonical `bundleDependencies` spelling, npm omits the bundled dependency from the tarball. The allowlist at commit `3ef26b6a5f923765f74d360812a9f1fff44cce1d` removed it. The current allowlist keeps both spellings.
 
 ```sh
 # in an empty directory, with node_modules/dep/{package.json,index.js} present
@@ -28,7 +28,8 @@ npm pack --silent && tar -tzf pkg-1.0.0.tgz
 | Spelling | `prepack` | Tarball contents |
 | --- | --- | --- |
 | `bundleDependencies` | `true` (no-op) | `package/node_modules/dep/index.js package/node_modules/dep/package.json package/package.json` |
-| `bundleDependencies` | clean-pkg-json | `package/package.json` |
+| `bundleDependencies` | clean-pkg-json at `3ef26b6` | `package/package.json` |
+| `bundleDependencies` | clean-pkg-json, current | `package/node_modules/dep/index.js package/node_modules/dep/package.json package/package.json` |
 | `bundledDependencies` | `true` (no-op) | `package/node_modules/dep/index.js package/node_modules/dep/package.json package/package.json` |
 | `bundledDependencies` | clean-pkg-json | `package/node_modules/dep/index.js package/node_modules/dep/package.json package/package.json` |
 
