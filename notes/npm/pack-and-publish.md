@@ -49,3 +49,16 @@ Only npm 12.2.1 was tested. Older npm versions are an evidence gap.
 ## `prepublishOnly` runs only for publish
 
 `prepublishOnly` runs in `npm publish` ([`lib/commands/publish.js#L103-L110`](https://github.com/npm/cli/blob/v12.2.1/lib/commands/publish.js#L103-L110)), not in libnpmpack. `prepack` runs in libnpmpack, so it runs for both `npm pack` and `npm publish`.
+
+## `postpack` runs before the registry re-read
+
+libnpmpack runs `postpack` before it returns the tarball ([`libnpmpack/lib/index.js#L93-L106`](https://github.com/npm/cli/blob/v12.2.1/workspaces/libnpmpack/lib/index.js#L93-L106)). It passes the manifest from read 1, so `postpack` runs if it existed before `prepack`, even if `prepack` removed it. `npm publish` re-reads the manifest for the registry only after `pack()` returns ([`lib/commands/publish.js#L113-L127`](https://github.com/npm/cli/blob/v12.2.1/lib/commands/publish.js#L113-L127)). So a `postpack` script that restores the original `package.json` makes npm send the original, uncleaned manifest to the registry, while the tarball contains the cleaned file.
+
+Experiment: `"prepack": "node backup.js && node <clean-pkg-json>"` and `"postpack": "node restore.js"` (copy `package.json` to a backup, then rename it back), with clean-pkg-json at commit `f135dcf`. `npm publish` went to a local HTTP server on `localhost:4873` that records the PUT request.
+
+| `postpack` restore | Registry manifest keys | Tarball `package.json` |
+| --- | --- | --- |
+| yes | `name`, `version`, `packageManager`, `eslintConfig`, `scripts`, `readme`, `_id`, `_nodeVersion`, `_npmVersion`, `dist` | `{"name":"restore-test","version":"1.0.0"}` |
+| no | `name`, `version`, `readme`, `_id`, `_nodeVersion`, `_npmVersion`, `dist` | cleaned |
+
+With the restore, the registry metadata included the removed `scripts`, including the `prepack` and `postpack` entries.

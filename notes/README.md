@@ -11,6 +11,7 @@ Each upstream folder owns that tool's behavior, version boundaries, and the expe
 | Folder | Owns |
 | --- | --- |
 | [npm/](./npm/README.md) | When `npm pack` and `npm publish` read `package.json`, and the fields npm reads from an installed dependency |
+| [yarn/](./yarn/README.md) | When Yarn 4 reads `package.json` during pack and publish, and when it runs `postpack` |
 | [pnpm/](./pnpm/README.md) | When `pnpm pack` reads `package.json` and applies `publishConfig` |
 | [nodejs/](./nodejs/README.md) | The `package.json` fields Node.js defines, custom conditions, and subpath patterns |
 | [typescript/](./typescript/README.md) | The `package.json` fields TypeScript reads, including the TypeScript 7.1 content mapper manifest |

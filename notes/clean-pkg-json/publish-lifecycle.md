@@ -6,7 +6,7 @@ Upstream evidence:
 
 - npm: [npm/pack-and-publish.md](../npm/pack-and-publish.md)
 - pnpm: [pnpm/pack-and-publish.md](../pnpm/pack-and-publish.md)
-- Yarn was not tested. This is an evidence gap.
+- Yarn 4: [yarn/pack-and-publish.md](../yarn/pack-and-publish.md)
 
 ## Fields that must survive `prepack`
 
@@ -33,3 +33,25 @@ npm 12.2.1 does not run `prepack` when it installs a git dependency, although np
 ## npm dry runs
 
 When `npm_config_dry_run` is `true`, clean-pkg-json does not write the file ([`src/index.ts`](../../src/index.ts), `isDryRun`). npm exports every non-default config value to lifecycle scripts as an `npm_config_*` variable ([`config/lib/set-envs.js#L1-L12`](https://github.com/npm/cli/blob/v12.2.1/workspaces/config/lib/set-envs.js#L1-L12), [`#L48-L89`](https://github.com/npm/cli/blob/v12.2.1/workspaces/config/lib/set-envs.js#L48-L89)), so `npm pack --dry-run` and `npm publish --dry-run` set it. As a result, a dry run lists the uncleaned `package.json` in the tarball contents, so the dry run does not show what a real pack produces. Issue [#31](https://github.com/privatenumber/clean-pkg-json/issues/31) requests a dry run that shows the cleaned manifest. Use `clean-pkg-json --dry` to see the cleaned manifest without writing it.
+
+## The cleaned file stays on disk
+
+clean-pkg-json does not restore `package.json`. After it runs, every later command in the same checkout sees the cleaned file. This matters when a later command reads a project setting that the cleanup removed, such as `packageManager`.
+
+Issue [#32](https://github.com/privatenumber/clean-pkg-json/issues/32) is an example. A release script runs `clean-pkg-json && changeset publish` in a Yarn 4 project:
+
+1. clean-pkg-json removes `packageManager` from `package.json`.
+2. `changeset publish` (`@changesets/cli` 3.0.3) runs `yarn --version` in the project root to choose a publish tool, and it rejects Yarn 1 with "Yarn Classic is not supported" ([`getPublishTool.ts#L9-L18`](https://github.com/changesets/changesets/blob/%40changesets/cli%403.0.3/packages/cli/src/commands/publish/getPublishTool.ts#L9-L18), [`#L47-L54`](https://github.com/changesets/changesets/blob/%40changesets/cli%403.0.3/packages/cli/src/commands/publish/getPublishTool.ts#L47-L54)).
+3. Without `packageManager`, Corepack's `yarn` runs its default Yarn 1. Observed with Corepack 0.36.0: `corepack yarn --version` printed `4.18.1` in a directory whose `package.json` has `"packageManager": "yarn@4.18.1"`, and `1.22.22` in a directory without the field.
+
+Running clean-pkg-json in `prepack` changes the order but not the file state. `changeset publish` chooses its publish tool before it publishes any package ([`publish/index.ts#L121`](https://github.com/changesets/changesets/blob/%40changesets/cli%403.0.3/packages/cli/src/commands/publish/index.ts#L121)), and Yarn runs `prepack` during the publish. So the detection sees the original file. Afterward, the file is still cleaned: after `yarn pack` with clean-pkg-json in `prepack`, `corepack yarn --version` printed `1.22.22` ([yarn experiment](../yarn/pack-and-publish.md#experiments)). The end-to-end `changeset publish` flow with `prepack` was not run.
+
+### Restoring in `postpack` is unsafe with npm
+
+A `postpack` script that restores the original file looks like a fix, but the package managers disagree on when they read the file:
+
+- **npm** runs `postpack` before it re-reads the manifest for the registry. A restore in `postpack` makes npm publish the original, uncleaned manifest as registry metadata, including the removed `scripts`, while the tarball has the cleaned file ([npm experiment](../npm/pack-and-publish.md#postpack-runs-before-the-registry-re-read)).
+- **Yarn 4** sends the registry manifest before `postpack`, but it decides whether to run `postpack` from the cleaned file. clean-pkg-json removes `scripts.postpack`, so the restore does not run unless it is kept with `--keep scripts.postpack` ([yarn experiment](../yarn/pack-and-publish.md#experiments)).
+- **pnpm** was not tested.
+
+So a restore needs a lifecycle point that runs after the registry upload, such as `postpublish`, and it still would not run for `npm pack` alone.
