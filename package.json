@@ -35,8 +35,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "^22.19.20",
-		"ansis": "^4.3.1",
-		"cleye": "^2.6.0",
+		"ansis": "^4.4.0",
+		"cleye": "^2.7.0",
 		"fs-fixture": "^2.14.0",
 		"lintroll": "^1.30.2",
 		"manten": "^2.0.0",
