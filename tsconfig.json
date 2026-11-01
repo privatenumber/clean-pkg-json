@@ -2,6 +2,9 @@
 	"compilerOptions": {
 		"module": "Preserve",
 		"resolveJsonModule": true,
+		"types": [
+			"node",
+		],
 		"allowImportingTsExtensions": true,
 		"strict": true,
 		"noEmit": true,
