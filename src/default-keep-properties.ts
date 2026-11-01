@@ -1,3 +1,4 @@
+// Each entry needs a vetted consumer: notes/clean-pkg-json/property-vetting.md
 export const defaultKeepProperties = [
 	// Required fields
 	'name',
