@@ -9,17 +9,20 @@ export const defaultKeepProperties = [
 	'publishConfig',
 
 	// Install hooks
-	// npm 6 & 7
 	'scripts.preinstall',
 	'scripts.install',
 	'scripts.postinstall',
 
-	// npm 8
-	'scripts.dependencies',
+	// `false` stops npm from running `node-gyp rebuild` when binding.gyp exists
+	'gypfile',
+
+	// Read by prebuild-install and node-pre-gyp in install scripts
+	'binary',
 
 	// Files
 	'files',
 	'bin',
+	'directories',
 	'browser',
 	'main',
 	'man',
@@ -32,6 +35,7 @@ export const defaultKeepProperties = [
 	'dependencies',
 	'peerDependencies',
 	'peerDependenciesMeta',
+	'bundleDependencies',
 	'bundledDependencies',
 	'optionalDependencies',
 
@@ -39,6 +43,7 @@ export const defaultKeepProperties = [
 	'engines',
 	'os',
 	'cpu',
+	'libc',
 
 	// Read by npmjs.com
 	'description',
@@ -75,7 +80,6 @@ export const defaultKeepProperties = [
 	'icon',
 
 	// Angular - https://angular.dev/tools/libraries/angular-package-format
-	'fesm2022',
 	'fesm2020',
 	'fesm2015',
 	'esm2020',

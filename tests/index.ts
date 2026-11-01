@@ -67,6 +67,34 @@ describe('clean-pkg-json', () => {
 		});
 	});
 
+	test('keeps fields read at pack and install time', async () => {
+		const packageJson = {
+			name: 'native-package',
+			version: '1.0.0',
+			scripts: {
+				dependencies: 'echo root only',
+			},
+			bundleDependencies: ['dep'],
+			gypfile: false,
+			directories: {
+				bin: 'bin',
+			},
+			os: ['linux'],
+			libc: ['musl'],
+			binary: {
+				napi_versions: [7],
+			},
+		};
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify(packageJson),
+		});
+
+		await cleanPkgJson(fixture.path);
+
+		const { scripts: _scripts, ...expected } = packageJson;
+		expect(await fixture.readJson('package.json')).toStrictEqual(expected);
+	});
+
 	test('keep flag', async () => {
 		await using fixture = await createFixture({
 			'package.json': JSON.stringify(fixturePackageJson),

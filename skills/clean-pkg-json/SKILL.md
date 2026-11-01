@@ -53,7 +53,6 @@ Scripts use dot-notation in the allowlist. Only install hooks are preserved by d
 - `scripts.preinstall`
 - `scripts.install`
 - `scripts.postinstall`
-- `scripts.dependencies`
 
 To preserve additional scripts:
 
@@ -68,13 +67,14 @@ If no scripts remain after filtering, the `scripts` key itself is omitted.
 | Category | Properties |
 |----------|------------|
 | npm required | `name`, `version`, `private`, `publishConfig` |
-| Entry points | `main`, `bin`, `browser`, `man`, `files` |
-| Dependencies | `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundledDependencies`, `optionalDependencies` |
+| Entry points | `main`, `bin`, `directories`, `browser`, `man`, `files` |
+| Dependencies | `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `bundleDependencies`, `bundledDependencies`, `optionalDependencies` |
 | Node.js ESM | `type`, `exports`, `imports` |
-| Environment | `engines`, `os`, `cpu` |
+| Environment | `engines`, `os`, `cpu`, `libc` |
+| Native addons | `gypfile`, `binary` |
 | Metadata | `description`, `keywords`, `author`, `maintainers`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding` |
 | TypeScript | `types`, `typings`, `typesVersions` |
 | Bundlers | `module`, `sideEffects` |
 | CDNs | `jsdelivr`, `unpkg` |
 | VSCode extensions | `sponsor`, `publisher`, `displayName`, `categories`, `galleryBanner`, `preview`, `contributes`, `activationEvents`, `badges`, `markdown`, `qna`, `extensionPack`, `extensionDependencies`, `extensionKind`, `icon` |
-| Angular | `fesm2022`, `fesm2020`, `fesm2015`, `esm2020`, `es2020` |
+| Angular | `fesm2020`, `fesm2015`, `esm2020`, `es2020` |

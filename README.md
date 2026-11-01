@@ -70,7 +70,7 @@ Running `clean-pkg-json` produces:
 
 Uses an allowlist to preserve only [properties relevant to package consumers](#default-preserved-properties), everything else is removed.
 
-For `scripts`, only install hooks (`preinstall`, `install`, `postinstall`, `dependencies`) are preserved. All other scripts are removed.
+For `scripts`, only install hooks (`preinstall`, `install`, `postinstall`) are preserved. All other scripts are removed.
 
 For `exports` and `imports`, entries referencing files not included in the published package are pruned. This prevents consumers from resolving to non-existent source files. Conditional entries are partially pruned — only unpublished branches are removed. Pass `--published-only=false` to disable this behavior.
 
@@ -122,20 +122,24 @@ When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-jso
 - `scripts.preinstall`
 - `scripts.install`
 - `scripts.postinstall`
-- `scripts.dependencies`
+- `gypfile`
+- `binary` ([prebuild-install](https://github.com/prebuild/prebuild-install), [node-pre-gyp](https://github.com/mapbox/node-pre-gyp))
 - `files`
 - `bin`
 - `browser`
 - `main`
+- `directories`
 - `man`
 - `dependencies`
 - `peerDependencies`
 - `peerDependenciesMeta`
+- `bundleDependencies`
 - `bundledDependencies`
 - `optionalDependencies`
 - `engines`
 - `os`
 - `cpu`
+- `libc`
 - `description`
 - `keywords`
 - `author`
@@ -174,7 +178,6 @@ When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-jso
 - `icon`
 
 ### [Angular Package Format](https://angular.dev/tools/libraries/angular-package-format)
-- `fesm2022`
 - `fesm2020`
 - `fesm2015`
 - `esm2020`
