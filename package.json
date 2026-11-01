@@ -37,13 +37,13 @@
 		"@types/node": "^22.19.20",
 		"ansis": "^4.4.0",
 		"cleye": "^2.7.0",
-		"fs-fixture": "^2.14.0",
-		"lintroll": "^1.30.2",
-		"manten": "^2.0.0",
+		"fs-fixture": "^2.16.0",
+		"lintroll": "^1.33.0",
+		"manten": "^2.0.2",
 		"nano-spawn": "^2.1.0",
 		"npm-packlist": "^10.0.4",
-		"pkgroll": "^2.27.1",
-		"type-fest": "^5.7.0",
-		"typescript": "^5.9.3"
+		"pkgroll": "^2.29.0",
+		"type-fest": "^5.10.0",
+		"typescript": "^6.0.3"
 	}
 }
