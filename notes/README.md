@@ -13,7 +13,7 @@ Each upstream folder owns that tool's behavior, version boundaries, and the expe
 | [npm/](./npm/README.md) | When `npm pack` and `npm publish` read `package.json`, and the fields npm reads from an installed dependency |
 | [pnpm/](./pnpm/README.md) | When `pnpm pack` reads `package.json` and applies `publishConfig` |
 | [nodejs/](./nodejs/README.md) | The `package.json` fields Node.js defines, custom conditions, and subpath patterns |
-| [typescript/](./typescript/README.md) | The `package.json` fields TypeScript's module resolver reads |
+| [typescript/](./typescript/README.md) | The `package.json` fields TypeScript reads, including the TypeScript 7.1 content mapper manifest |
 | [angular/](./angular/README.md) | Angular Package Format legacy resolution keys by version |
 | [clean-pkg-json/](./clean-pkg-json/README.md) | Property vetting, publish lifecycle integration, and `exports`/`imports` pruning |
 

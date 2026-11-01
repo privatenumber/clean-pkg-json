@@ -80,6 +80,7 @@ These fields are read after `prepack`. See [publish-lifecycle.md](./publish-life
 | --- | --- | --- |
 | `type`, `main`, `exports`, `imports` | The fields Node.js defines ([Node.js](../nodejs/package-json-fields.md)). TypeScript reads them too ([TypeScript](../typescript/package-json-fields.md)). `exports` and `imports` are also pruned, see [path-pruning.md](./path-pruning.md). | Required |
 | `types`, `typings`, `typesVersions` | TypeScript's type entry point and version redirects ([TypeScript](../typescript/package-json-fields.md)). | Required |
+| `typescript` | TypeScript 7.1 reads `typescript.contentMapper` from a content mapper package to learn how to start the mapper. Without it, TypeScript reports that the package "does not declare a typescript.contentMapper object" and does not use the mapper. Published mappers such as `@vue/content-mapper` and `@astrojs/ts-content-mapper` set it ([TypeScript](../typescript/package-json-fields.md#typescriptcontentmapper-typescript-71)). TypeScript 7.1 is in beta, so the nested fields can still change. | Required |
 
 ### Bundlers and CDNs
 
@@ -112,12 +113,12 @@ Evidence gap: `vsce` packages extensions without `npm pack`, and this note does 
 
 The first full vetting changed the default list. This section records why, because the earlier list is in released versions.
 
-- **Added** `bundleDependencies`, `gypfile`, `directories`, `libc`, and `binary`. Each has a reader in the tables above. Before this change, clean-pkg-json removed them. The linked npm experiments show the effect of that removal for the first four. The effect for `binary` comes from source only. After the change, the `bundleDependencies` experiment was re-run with the new build, and the tarball matched the no-op control. The other experiments were not re-run.
+- **Added** `bundleDependencies`, `gypfile`, `directories`, `libc`, `binary`, and `typescript`. Each has a reader in the tables above. Before this change, clean-pkg-json removed them. The linked npm experiments show the effect of that removal for the first four. The effect for `binary` and `typescript` comes from source only. After the change, the `bundleDependencies` experiment was re-run with the new build, and the tarball matched the no-op control. The other experiments were not re-run.
 - **Removed** `scripts.dependencies`. npm runs the `dependencies` script only for the root project, never for an installed dependency, in both npm 8 and npm 12 ([npm](../npm/package-json-fields.md#install-scripts)). The allowlist had listed it as an "npm 8" install hook, but it never ran for consumers.
 - **Removed** `fesm2022`, added in [#9](https://github.com/privatenumber/clean-pkg-json/pull/9). No Angular Package Format version defines it as a top-level key ([Angular](../angular/package-format.md#fesm2022-is-a-directory-not-a-key)).
 - **Not changed**: `napi`. It has the same shape as `binary` (read by the package's own install script), but it was declined in [#8](https://github.com/privatenumber/clean-pkg-json/pull/8), and this vetting did not revisit that decision. See [Evaluated and not kept](#evaluated-and-not-kept).
 
-The test `keeps fields read at pack and install time` in [`tests/index.ts`](../../tests/index.ts) locks the added fields and the `scripts.dependencies` removal.
+The test `keeps fields that tools read from the published package` in [`tests/index.ts`](../../tests/index.ts) locks the added fields and the `scripts.dependencies` removal.
 
 ## Evaluated and not kept
 
