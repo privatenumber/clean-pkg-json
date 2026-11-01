@@ -73,7 +73,7 @@ If no scripts remain after filtering, the `scripts` key itself is omitted.
 | Environment | `engines`, `os`, `cpu`, `libc` |
 | Native addons | `gypfile`, `binary` |
 | Metadata | `description`, `keywords`, `author`, `maintainers`, `contributors`, `license`, `homepage`, `repository`, `bugs`, `funding` |
-| TypeScript | `types`, `typings`, `typesVersions` |
+| TypeScript | `types`, `typings`, `typesVersions`, `typescript` |
 | Bundlers | `module`, `sideEffects` |
 | CDNs | `jsdelivr`, `unpkg` |
 | VSCode extensions | `sponsor`, `publisher`, `displayName`, `categories`, `galleryBanner`, `preview`, `contributes`, `activationEvents`, `badges`, `markdown`, `qna`, `extensionPack`, `extensionDependencies`, `extensionKind`, `icon` |

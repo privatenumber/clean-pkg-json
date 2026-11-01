@@ -187,6 +187,7 @@ When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-jso
 - `types`
 - `typings`
 - `typesVersions`
+- `typescript` ([content mapper](https://github.com/microsoft/typescript-go/pull/4712) manifest, TypeScript 7.1+)
 
 ### Bundlers (Webpack, Rollup, esbuild)
 - [`module`](https://stackoverflow.com/questions/42708484/what-is-the-module-package-json-field-for)

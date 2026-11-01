@@ -67,7 +67,7 @@ describe('clean-pkg-json', () => {
 		});
 	});
 
-	test('keeps fields read at pack and install time', async () => {
+	test('keeps fields that tools read from the published package', async () => {
 		const packageJson = {
 			name: 'native-package',
 			version: '1.0.0',
@@ -83,6 +83,11 @@ describe('clean-pkg-json', () => {
 			libc: ['musl'],
 			binary: {
 				napi_versions: [7],
+			},
+			typescript: {
+				contentMapper: {
+					exec: ['node', 'server.js'],
+				},
 			},
 		};
 		await using fixture = await createFixture({
