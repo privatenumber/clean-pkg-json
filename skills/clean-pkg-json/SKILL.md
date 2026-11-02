@@ -9,15 +9,7 @@ Publishes only consumer-relevant `package.json` properties using an allowlist.
 
 ## Setup
 
-```json
-{
-    "scripts": {
-        "prepack": "clean-pkg-json"
-    }
-}
-```
-
-When chaining with other prepack commands:
+Run it in `prepack`, after the build:
 
 ```json
 {
@@ -27,24 +19,36 @@ When chaining with other prepack commands:
 }
 ```
 
+## Rules
+
+- Run the build before `clean-pkg-json`, in the same `prepack` script.
+- Don't run `clean-pkg-json` as a separate step before other tools, such as `clean-pkg-json && changeset publish`. Use `prepack`. If it must run first, keep what those tools read: `clean-pkg-json --keep packageManager`.
+- Don't restore `package.json` in `postpack`.
+- After a local `npm pack`, restore the file with `git checkout package.json`.
+- Preview with `clean-pkg-json --dry`. `npm pack --dry-run` shows the original `package.json`.
+
+### Why
+
+- `exports` and `imports` entries are removed when their files aren't in the package. Unbuilt files look missing, so their entries get removed, with a warning.
+- The tool rewrites `package.json` in place and keeps no copy. Every later command in the checkout sees the cleaned file. Without `packageManager`, Corepack falls back to its default version, so a Yarn 4 project runs later tools with Yarn 1.
+- npm reads `package.json` again after `postpack` to build the registry metadata. A restore there publishes the uncleaned metadata.
+- Under `npm pack --dry-run` or `npm publish --dry-run`, the tool detects `npm_config_dry_run` and doesn't write, so npm packs the original file.
+
 ## Flags
 
 | Flag | Description | Example |
 |------|-------------|---------|
 | `-k, --keep` | Preserve additional properties | `clean-pkg-json -k eslintConfig,devDependencies` |
 | `-r, --remove` | Drop default-kept properties | `clean-pkg-json -r scripts.postinstall` |
-| `-d, --dry` | Preview result without writing to disk | `clean-pkg-json --dry` |
-| `-v, --verbose` | Log details about which properties are preserved | `clean-pkg-json --verbose` |
+| `-d, --dry` | Print the result without writing to disk | `clean-pkg-json --dry` |
+| `-v, --verbose` | Log which properties are kept and removed | `clean-pkg-json --verbose` |
+| `--published-only=false` | Don't prune `exports` and `imports` | `clean-pkg-json --published-only=false` |
 
 Both `--keep` and `--remove` accept multiple flags (`-k foo -k bar`) or comma-delimited lists (`-k foo,bar`).
 
-Use `--dry` to preview changes before writing.
-
-`npm pack --dry-run` and `npm publish --dry-run` are also auto-detected (via `npm_config_dry_run`) — no write happens when npm itself is in dry-run mode.
-
 ## Behavior
 
-The tool reads `./package.json` in the current directory, keeps only allowlisted properties, and writes the result back in place.
+The tool reads `./package.json` in the current directory, keeps only allowlisted properties, prunes `exports` and `imports` entries for unpublished files, and writes the result back in place.
 
 ### Scripts Handling
 
