@@ -25,14 +25,15 @@ Run it in `prepack`, after the build:
 - Don't run `clean-pkg-json` as a separate step before other tools, such as `clean-pkg-json && changeset publish`. Use `prepack`. If it must run first, keep what those tools read: `clean-pkg-json --keep packageManager`.
 - Don't restore `package.json` in `postpack`.
 - After a local `npm pack`, restore the file with `git checkout package.json`.
-- Preview with `clean-pkg-json --dry`. `npm pack --dry-run` shows the original `package.json`.
+- Preview with `clean-pkg-json --dry`. `npm pack --dry-run` shows the original `package.json`, so its sizes, shasum, and integrity don't match the real package.
+- For the real shasum and integrity, run `npm pack --json`, then `git checkout package.json`.
 
 ### Why
 
 - `exports` and `imports` entries are removed when their files aren't in the package. Unbuilt files look missing, so their entries get removed, with a warning.
 - The tool rewrites `package.json` in place and keeps no copy. Every later command in the checkout sees the cleaned file. Without `packageManager`, Corepack falls back to its default version, so a Yarn 4 project runs later tools with Yarn 1.
 - npm reads `package.json` again after `postpack` to build the registry metadata. A restore there publishes the uncleaned metadata.
-- Under `npm pack --dry-run` or `npm publish --dry-run`, the tool detects `npm_config_dry_run` and doesn't write, so npm packs the original file.
+- Under `npm pack --dry-run` or `npm publish --dry-run`, the tool detects `npm_config_dry_run` and doesn't write, so npm packs the original file. npm packs only the file on disk, and a `postpack` restore doesn't run if the pack fails or is interrupted, so there is no safe way to pack the cleaned file in a dry run.
 
 ## Flags
 
