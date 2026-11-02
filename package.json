@@ -34,7 +34,7 @@
 		"node": ">=22"
 	},
 	"devDependencies": {
-		"@types/node": "^22.19.20",
+		"@types/node": "^24.19.2",
 		"ansis": "^4.4.0",
 		"cleye": "^2.7.0",
 		"fs-fixture": "^2.16.0",
