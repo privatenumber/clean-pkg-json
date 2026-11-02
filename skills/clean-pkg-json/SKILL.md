@@ -44,7 +44,11 @@ Use `--dry` to preview changes before writing.
 
 ## Behavior
 
-The tool reads `./package.json` in the current directory, keeps only allowlisted properties, and writes the result back in place.
+The tool reads `./package.json` in the current directory, keeps only allowlisted properties, and writes the result back in place. It does not restore the original, so later commands in the same checkout see the cleaned file.
+
+- Run it in `prepack`, not as a step before other tools. Without `packageManager`, Corepack falls back to its default version, so `clean-pkg-json && changeset publish` in a Yarn 4 project runs changesets with Yarn 1.
+- If it must run before other tools, keep what they read: `clean-pkg-json --keep packageManager`.
+- Do not restore `package.json` in `postpack`: npm re-reads the manifest for the registry after `postpack`, so the registry gets the uncleaned metadata.
 
 ### Scripts Handling
 

@@ -97,6 +97,16 @@ Add `clean-pkg-json` to the [`prepack`](https://docs.npmjs.com/cli/v8/using-npm/
 
 When invoked via `npm pack --dry-run` or `npm publish --dry-run`, `clean-pkg-json` auto-detects npm's dry-run mode (via the `npm_config_dry_run` env var) and skips writing to disk.
 
+### `package.json` stays cleaned
+
+`clean-pkg-json` rewrites `package.json` in place and does not restore it. npm, pnpm, and Yarn read `package.json` again after `prepack`, so the packed manifest is the cleaned one. Commands that run later in the same checkout also see the cleaned file.
+
+This matters when a later command reads a project setting that was removed. For example, without `packageManager`, Corepack falls back to its default package manager version. So a release script like `clean-pkg-json && changeset publish` in a Yarn 4 project runs changesets with Yarn 1.
+
+- Prefer `prepack`, so the cleanup runs after the publish tool has started.
+- If `clean-pkg-json` must run as its own step before other tools, keep the settings they need: `clean-pkg-json --keep packageManager`.
+- Don't restore the original file in `postpack`. npm reads the manifest for the registry after `postpack`, so a restore there publishes the uncleaned metadata.
+
 ### Flags
 
 | Flag | Description |
