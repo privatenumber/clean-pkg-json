@@ -34,7 +34,8 @@ Run it in the [`prepack`](https://docs.npmjs.com/cli/using-npm/scripts#life-cycl
 - **Don't run it as a separate step before other tools.** Use `prepack`. If you must, keep what those tools need, for example `clean-pkg-json --keep packageManager`.
 - **Don't restore `package.json` in `postpack`.** It publishes the uncleaned metadata.
 - **Preview the cleaned `package.json` with `clean-pkg-json --dry`.** It prints the result and doesn't write the file.
-- **Don't trust the numbers from `npm pack --dry-run`.** `clean-pkg-json` doesn't change `package.json` during an npm dry run, so npm's file sizes, shasum, and integrity describe the original file. `clean-pkg-json` prints a note when this happens. For the real values, run `npm pack --json`, then `git checkout package.json`.
+- **Don't trust the numbers from `npm pack --dry-run`.** `clean-pkg-json` doesn't change `package.json` during an npm dry run, so npm's file sizes, shasum, and integrity describe the original file. `clean-pkg-json` prints a note when this happens. For the real values, pack without `--dry-run`, then run `git checkout package.json`.
+- **With pnpm 11+ and Yarn 4, dry runs clean `package.json` too.** Restore it afterward with `git checkout package.json`.
 
 <details>
 <summary>Why</summary>
@@ -43,7 +44,8 @@ Run it in the [`prepack`](https://docs.npmjs.com/cli/using-npm/scripts#life-cycl
 - **`package.json` stays cleaned:** `clean-pkg-json` rewrites `package.json` in place and doesn't keep a copy.
 - **Separate steps:** every command after the cleanup sees the cleaned file. For example, without `packageManager`, Corepack falls back to its default version, so `clean-pkg-json && changeset publish` in a Yarn 4 project runs changesets with Yarn 1. In `prepack`, the publish tool has already started before the cleanup runs.
 - **`postpack`:** npm reads `package.json` again after `postpack` to build the registry metadata. A restore there sends the original file, including all scripts, to the registry while the tarball has the cleaned one.
-- **npm dry runs:** `npm pack --dry-run` and `npm publish --dry-run` still run `prepack` and build the tarball in memory. `clean-pkg-json` detects npm's dry-run mode (`npm_config_dry_run`), prints the cleaned result, and leaves `package.json` unchanged, so npm packs the original file. npm packs only the `package.json` on disk, so a dry run can't pack the cleaned file without changing it. Restoring the file afterward would need a separate `postpack` step, which doesn't run if the pack fails or is interrupted.
+- **npm dry runs:** `npm pack --dry-run` and `npm publish --dry-run` still run `prepack` and build the tarball in memory. `clean-pkg-json` detects the dry run (`npm_config_dry_run`, which pnpm 10 also sets), prints the cleaned result, and leaves `package.json` unchanged, so npm packs the original file. npm packs only the `package.json` on disk, so a dry run can't pack the cleaned file without changing it. Restoring the file afterward would need a separate `postpack` step, which doesn't run if the pack fails or is interrupted.
+- **pnpm 11+ and Yarn 4:** they don't tell lifecycle scripts about a dry run, so `clean-pkg-json` can't detect it and writes the file as in a real pack.
 
 </details>
 

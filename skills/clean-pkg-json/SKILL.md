@@ -26,7 +26,8 @@ Run it in `prepack`, after the build:
 - Don't restore `package.json` in `postpack`.
 - After a local `npm pack`, restore the file with `git checkout package.json`.
 - Preview the cleaned `package.json` with `clean-pkg-json --dry`. It prints the result without writing.
-- Don't trust the sizes, shasum, or integrity from `npm pack --dry-run`. The tool doesn't change `package.json` during an npm dry run, so npm reports the original file.
+- Don't trust the sizes, shasum, or integrity from `npm pack --dry-run`. The tool doesn't change `package.json` during an npm dry run, so npm reports the original file. For the real values, pack without `--dry-run`, then run `git checkout package.json`.
+- With pnpm 11+ and Yarn 4, dry runs clean `package.json` on disk. Restore it with `git checkout package.json`.
 - For the real shasum and integrity, run `npm pack --json`, then `git checkout package.json`.
 
 ### Why
@@ -34,7 +35,8 @@ Run it in `prepack`, after the build:
 - `exports` and `imports` entries are removed when their files aren't in the package. Unbuilt files look missing, so their entries get removed, with a warning.
 - The tool rewrites `package.json` in place and keeps no copy. Every later command in the checkout sees the cleaned file. Without `packageManager`, Corepack falls back to its default version, so a Yarn 4 project runs later tools with Yarn 1.
 - npm reads `package.json` again after `postpack` to build the registry metadata. A restore there publishes the uncleaned metadata.
-- `--dry` and npm's dry run are separate modes. Under `npm pack --dry-run` or `npm publish --dry-run`, npm still runs `prepack` and builds the tarball in memory. The tool detects `npm_config_dry_run`, prints the cleaned result, prints a note to stderr, and doesn't write, so npm packs the original file. npm packs only the file on disk, and a `postpack` restore doesn't run if the pack fails or is interrupted, so there is no safe way to pack the cleaned file in a dry run.
+- `--dry` and npm's dry run are separate modes. Under `npm pack --dry-run` or `npm publish --dry-run`, npm still runs `prepack` and builds the tarball in memory. The tool detects `npm_config_dry_run` (pnpm 10 sets it too), prints the cleaned result, prints a note to stderr, and doesn't write, so npm packs the original file. npm packs only the file on disk, and a `postpack` restore doesn't run if the pack fails or is interrupted, so there is no safe way to pack the cleaned file in a dry run.
+- pnpm 11+ and Yarn 4 don't expose dry runs to lifecycle scripts, so the tool can't detect them and writes the file.
 
 ## Flags
 

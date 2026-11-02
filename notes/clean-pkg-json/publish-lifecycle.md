@@ -34,6 +34,8 @@ npm 12.2.1 does not run `prepack` when it installs a git dependency, although np
 
 When `npm_config_dry_run` is `true`, clean-pkg-json does not write the file ([`src/index.ts`](../../src/index.ts), `isDryRun`). npm exports every non-default config value to lifecycle scripts as an `npm_config_*` variable ([`config/lib/set-envs.js#L1-L12`](https://github.com/npm/cli/blob/v12.2.1/workspaces/config/lib/set-envs.js#L1-L12), [`#L48-L89`](https://github.com/npm/cli/blob/v12.2.1/workspaces/config/lib/set-envs.js#L48-L89)), so `npm pack --dry-run` and `npm publish --dry-run` set it. As a result, a dry run lists the uncleaned `package.json` in the tarball contents, so the dry run does not show what a real pack produces. Issue [#31](https://github.com/privatenumber/clean-pkg-json/issues/31) requests a dry run that shows the cleaned manifest. Use `clean-pkg-json --dry` to see the cleaned manifest without writing it.
 
+pnpm 10 also sets `npm_config_dry_run`. pnpm 11+ and Yarn 4 don't expose dry runs to lifecycle scripts at all, so clean-pkg-json writes the file during their dry runs ([pnpm](../pnpm/pack-and-publish.md#dry-runs-are-invisible-to-lifecycle-scripts-in-pnpm-11), [Yarn](../yarn/pack-and-publish.md#dry-runs-are-invisible-to-lifecycle-scripts)). Detecting them from the parent process's arguments was rejected: it depends on the platform and breaks with wrappers such as Corepack, `npx`, and `pnpm -r`.
+
 ### Rejected: write and restore during a dry run
 
 Issue #31 wants the shasum and integrity of the real tarball ahead of time. Those hashes cover the tarball bytes, and npm packs the `package.json` on disk. So a dry run that reports them must write the cleaned file and then restore it.

@@ -66,7 +66,8 @@ const reportError = (error: unknown) => {
 };
 
 (async () => {
-	// npm sets this during `npm pack --dry-run` and `npm publish --dry-run`
+	// Set by `npm pack --dry-run`, `npm publish --dry-run`, and pnpm 10.
+	// pnpm 11+ and Yarn 4 don't expose dry runs to lifecycle scripts.
 	const isNpmDryRun = process.env.npm_config_dry_run === 'true';
 	const isDryRun = argv.flags.dry || isNpmDryRun;
 
@@ -126,7 +127,7 @@ const reportError = (error: unknown) => {
 	}
 
 	if (isNpmDryRun) {
-		console.warn(`${yellow('Note:')} npm dry run detected, so ${packageJsonPath} was not changed. npm's file sizes, shasum, and integrity describe the original file. For the real values, run \`npm pack --json\` and then \`git checkout package.json\`.`);
+		console.warn(`${yellow('Note:')} Dry run detected, so ${packageJsonPath} was not changed. The package manager's file sizes, shasum, and integrity describe the original file. For the real values, pack without --dry-run, then run \`git checkout package.json\`.`);
 	}
 
 	if (!isDryRun) {

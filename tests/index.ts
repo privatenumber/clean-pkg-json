@@ -189,7 +189,7 @@ describe('clean-pkg-json', () => {
 		expect(onDisk).toHaveProperty('devDependencies');
 	});
 
-	test('npm dry run prints without writing and explains the npm output', async () => {
+	test('package manager dry run prints without writing and explains its output', async () => {
 		await using fixture = await createFixture({
 			'package.json': JSON.stringify(fixturePackageJson),
 		});
@@ -197,7 +197,7 @@ describe('clean-pkg-json', () => {
 		const { stdout, stderr } = await cleanPkgJson(fixture.path, [], { npm_config_dry_run: 'true' });
 
 		expect(JSON.parse(stdout)).not.toHaveProperty('devDependencies');
-		expect(stderr).toBe('Note: npm dry run detected, so ./package.json was not changed. npm\'s file sizes, shasum, and integrity describe the original file. For the real values, run `npm pack --json` and then `git checkout package.json`.');
+		expect(stderr).toBe('Note: Dry run detected, so ./package.json was not changed. The package manager\'s file sizes, shasum, and integrity describe the original file. For the real values, pack without --dry-run, then run `git checkout package.json`.');
 
 		const onDisk = await fixture.readJson('package.json');
 		expect(onDisk).toHaveProperty('devDependencies');
