@@ -41,4 +41,4 @@ Observed 2026-11-02 on Node.js 26.13.0. The `prepack` script printed its environ
 
 With pnpm 12.16.1, the full `prepack` environment of `pnpm pack --dry-run` and `pnpm pack` was the same. No variable identifies a dry run. The only `pnpm_config_*` variable was `pnpm_config_verify_deps_before_run`.
 
-Requested upstream: [pnpm/pnpm#17563](https://github.com/pnpm/pnpm/issues/17563), asking pnpm to set `npm_config_dry_run=true` for lifecycle scripts during dry runs. Reconsider the documented limitation if it ships.
+Requested upstream in [pnpm/pnpm#17563](https://github.com/pnpm/pnpm/issues/17563): set `npm_config_dry_run=true` for lifecycle scripts during dry runs. The maintainer moved it to the Ideas discussion [pnpm#17564](https://github.com/orgs/pnpm/discussions/17564) because the removal in 11.0.0 was deliberate, and was not convinced a change is needed. Reconsider the documented limitation if pnpm ships a dry-run signal.
