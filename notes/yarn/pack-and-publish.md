@@ -23,3 +23,11 @@ Setup for both: a Yarn 4 project with `"packageManager": "yarn@4.18.1"`, an empt
 - `package.json` on disk: still cleaned. `package.json.bak` still existed, so `postpack` did not run. The reloaded manifest no longer had `scripts.postpack`.
 
 Compare npm, which runs `postpack` from the manifest it read before `prepack`, and which reads the manifest for the registry after `postpack` ([npm/pack-and-publish.md](../npm/pack-and-publish.md#postpack-runs-before-the-registry-re-read)).
+
+## Dry runs are invisible to lifecycle scripts
+
+Yarn 4 runs `prepack` during `yarn pack --dry-run` and `yarn npm publish --dry-run`, but it doesn't tell the script that it is a dry run. It doesn't set `npm_config_dry_run`.
+
+Observed 2026-11-02 with Yarn 4.18.1 through Corepack 0.36.0. The `prepack` script saved its environment and then ran clean-pkg-json at commit `9de3922`, which skips the write when `npm_config_dry_run` is `true`. After both `yarn pack --dry-run` and `yarn npm publish --dry-run`, `package.json` on disk was rewritten. The environments of `yarn pack --dry-run`, `yarn pack`, and `yarn npm publish --dry-run` differed only in per-run temporary paths (`npm_execpath`, `npm_node_execpath`, `BERRY_BIN_FOLDER`, `PATH`) and in registry variables that the publish command set by hand.
+
+Requested upstream: [yarnpkg/berry#7323](https://github.com/yarnpkg/berry/issues/7323), asking Yarn to set `npm_config_dry_run=true` for lifecycle scripts during dry runs. Reconsider the documented limitation if it ships.

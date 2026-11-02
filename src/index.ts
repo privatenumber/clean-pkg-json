@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-import { red } from 'ansis';
+import { red, yellow } from 'ansis';
 import { cli } from 'cleye';
 import pkg from '../package.json' with { type: 'json' };
 import { defaultKeepProperties } from './default-keep-properties.ts';
@@ -31,7 +31,7 @@ const argv = cli({
 		dry: {
 			type: Boolean,
 			alias: 'd',
-			description: 'Dry run',
+			description: 'Print the result without writing package.json',
 		},
 		publishedOnly: {
 			type: Boolean,
@@ -66,7 +66,10 @@ const reportError = (error: unknown) => {
 };
 
 (async () => {
-	const isDryRun = argv.flags.dry || process.env.npm_config_dry_run === 'true';
+	// Set by `npm pack --dry-run`, `npm publish --dry-run`, and pnpm 10.
+	// pnpm 11+ and Yarn 4 don't expose dry runs to lifecycle scripts.
+	const isNpmDryRun = process.env.npm_config_dry_run === 'true';
+	const isDryRun = argv.flags.dry || isNpmDryRun;
 
 	const packageJsonExists = await fs.access(packageJsonPath).then(
 		() => true,
@@ -121,6 +124,10 @@ const reportError = (error: unknown) => {
 	const newPackageJsonString = JSON.stringify(packageJson, null, 2);
 	if (isDryRun || argv.flags.verbose) {
 		console.log(newPackageJsonString);
+	}
+
+	if (isNpmDryRun) {
+		console.warn(`${yellow('Note:')} Dry run detected, so ${packageJsonPath} was not changed. The package manager's file sizes, shasum, and integrity describe the original file. For the real values, pack without --dry-run, then run \`git checkout package.json\`.`);
 	}
 
 	if (!isDryRun) {

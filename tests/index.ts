@@ -12,6 +12,7 @@ const cleanPkgJsonPath = path.resolve('./src/index.ts');
 const cleanPkgJson = (
 	cwd: string,
 	flags: string[] = [],
+	env: Record<string, string> = {},
 ) => spawn(
 	process.execPath,
 	[cleanPkgJsonPath, ...flags],
@@ -21,6 +22,7 @@ const cleanPkgJson = (
 		env: {
 			...process.env,
 			NO_COLOR: '1',
+			...env,
 		},
 	},
 );
@@ -183,6 +185,20 @@ describe('clean-pkg-json', () => {
 		expect(printed).not.toHaveProperty('devDependencies');
 
 		// file on disk is unchanged
+		const onDisk = await fixture.readJson('package.json');
+		expect(onDisk).toHaveProperty('devDependencies');
+	});
+
+	test('package manager dry run prints without writing and explains its output', async () => {
+		await using fixture = await createFixture({
+			'package.json': JSON.stringify(fixturePackageJson),
+		});
+
+		const { stdout, stderr } = await cleanPkgJson(fixture.path, [], { npm_config_dry_run: 'true' });
+
+		expect(JSON.parse(stdout)).not.toHaveProperty('devDependencies');
+		expect(stderr).toBe('Note: Dry run detected, so ./package.json was not changed. The package manager\'s file sizes, shasum, and integrity describe the original file. For the real values, pack without --dry-run, then run `git checkout package.json`.');
+
 		const onDisk = await fixture.readJson('package.json');
 		expect(onDisk).toHaveProperty('devDependencies');
 	});
